@@ -1,0 +1,180 @@
+plugins {
+    id "com.android.application"
+    id "kotlin-android"
+    id "dev.flutter.flutter-gradle-plugin"
+    // M7 — Firebase
+    id "com.google.gms.google-services"
+}
+
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.withReader('UTF-8') { reader ->
+        localProperties.load(reader)
+    }
+}
+
+def flutterVersionCode = localProperties.getProperty('flutter.versionCode') ?: '1'
+def flutterVersionName = localProperties.getProperty('flutter.versionName') ?: '0.1.0'
+
+// M7 — Expected signing signature (SHA-256 of first signer cert).
+def expectedSigSha256 = (System.getenv("EXPECTED_SIG_SHA256") ?: "").toUpperCase()
+
+// M33 — Ambil AI_API_KEYS dari env CI, rolling-XOR tiap byte, encode hex.
+// Hasilnya di-embed ke keychain.so via CMake -DKEYCHAIN_XOR_HEX="...".
+// Kosong = build tanpa key native → app fallback ke --dart-define.
+def keychainSalt = [0xD3, 0x71, 0xA9, 0x4F]
+def rawAiKeys = (System.getenv("AI_API_KEYS") ?: System.getenv("AI_API_KEY") ?: "").trim()
+def keychainXorHex = ""
+if (!rawAiKeys.isEmpty()) {
+    def sb = new StringBuilder()
+    rawAiKeys.getBytes("UTF-8").eachWithIndex { b, i ->
+        def rolling = keychainSalt[i % keychainSalt.size()] ^ ((i * 0x1F + 0x9D) & 0xFF)
+        def x = ((b as int) & 0xFF) ^ rolling
+        sb.append(String.format("%02x", x))
+    }
+    keychainXorHex = sb.toString()
+    logger.lifecycle("✅ [M33] keychain.so embed ${rawAiKeys.split(/[,;]/).length} AI key (rolling-XOR, ${keychainXorHex.length()/2} bytes).")
+} else {
+    logger.warn("⚠️  [M22] AI_API_KEYS env kosong — keychain.so build tanpa key. App bakal fallback ke --dart-define.")
+}
+
+android {
+    namespace = "com.claudememek.app"
+    compileSdk = 36
+    ndkVersion = "25.1.8937393"
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_17.toString()
+    }
+
+    defaultConfig {
+        applicationId = "com.claudememek.app"
+        minSdk = 23
+        targetSdk = flutter.targetSdkVersion
+        versionCode = flutterVersionCode.toInteger()
+        versionName = flutterVersionName
+
+        // M7 — MultiDex explicit
+        multiDexEnabled = true
+
+        // Inject expected signature ke native code
+        externalNativeBuild {
+            cmake {
+                cppFlags "-std=c++17", "-fvisibility=hidden", "-O2"
+                arguments "-DEXPECTED_SIG_SHA256=${expectedSigSha256}",
+                          "-DKEYCHAIN_XOR_HEX=${keychainXorHex}"
+            }
+        }
+
+        ndk {
+            abiFilters "arm64-v8a"
+        }
+
+        // M16 — Facebook SDK strings.
+        def fbAppId = (System.getenv("FACEBOOK_APP_ID") ?: "").trim()
+        def fbClientToken = (System.getenv("FACEBOOK_CLIENT_TOKEN") ?: "").trim()
+        resValue "string", "facebook_app_id", fbAppId
+        resValue "string", "facebook_client_token", fbClientToken
+        resValue "string", "fb_login_protocol_scheme", "fb" + fbAppId
+    }
+
+    // M7 — Native C++ (memek.so + aegis.so + cipher.so + vault.so)
+    externalNativeBuild {
+        cmake {
+            path "src/main/cpp/CMakeLists.txt"
+            version "3.22.1"
+        }
+    }
+
+    dexOptions {
+        javaMaxHeapSize "4g"
+    }
+
+    // ─────────────────────────────────────────────────────────────────────
+    // M17 + M18 — Release keystore permanen (hardened).
+    //
+    // M17: `claude-release.jks` di-decode dari secret ANDROID_KEYSTORE_BASE64
+    // di step CI. Kalau file ada → pakai release signing.
+    //
+    // M18 (hotfix "Given final block not properly padded"):
+    //   • keyPassword fallback ke storePassword kalau env kosong / whitespace
+    //     — mencegah "wrong key password" saat salah satu secret ke-truncate.
+    //   • Guard: kalau storePassword kosong → **jangan** bikin signingConfig
+    //     release (biar buildTypes.release fallback ke debug signing dengan
+    //     warning jelas, bukan crash "padding" 6 menit di packageRelease).
+    //   • Print signing summary (tanpa expose password) ke Gradle log biar
+    //     ketahuan lebih awal keystore mana yang dipakai.
+    // ─────────────────────────────────────────────────────────────────────
+    def releaseKeystoreFile = file("claude-release.jks")
+    def hasReleaseKeystoreFile = releaseKeystoreFile.exists() && releaseKeystoreFile.length() > 0
+
+    def rawStorePass = (System.getenv("ANDROID_KEYSTORE_PASSWORD") ?: "").trim()
+    def rawKeyPass   = (System.getenv("ANDROID_KEY_PASSWORD")      ?: "").trim()
+    def rawKeyAlias  = (System.getenv("ANDROID_KEY_ALIAS")         ?: "claude-release").trim()
+
+    // Key password fallback ke store password (best-practice PKCS12 &
+    // menghindari padding error kalau hanya 1 secret di-set).
+    def effectiveKeyPass = rawKeyPass?.isEmpty() ? rawStorePass : rawKeyPass
+
+    def canSignRelease = hasReleaseKeystoreFile && !rawStorePass.isEmpty()
+
+    if (hasReleaseKeystoreFile && !canSignRelease) {
+        logger.warn("⚠️  [M18] claude-release.jks ditemukan TAPI " +
+                    "ANDROID_KEYSTORE_PASSWORD kosong. Fallback ke debug " +
+                    "signing. Cek GitHub Secrets — atau re-run workflow " +
+                    "'Generate Release Keystore' dengan force_regenerate=YES.")
+    }
+
+    signingConfigs {
+        if (canSignRelease) {
+            release {
+                storeFile     releaseKeystoreFile
+                storePassword rawStorePass
+                keyAlias      rawKeyAlias
+                keyPassword   effectiveKeyPass
+                // PKCS12 sekarang default keytool modern; explicit
+                // biar deterministik antara CI runner & lokal.
+                storeType     "PKCS12"
+            }
+            logger.lifecycle("✅ [M18] Release signing aktif — keystore=" +
+                             "${releaseKeystoreFile.name}, alias=${rawKeyAlias}, " +
+                             "keyPass=${rawKeyPass?.isEmpty() ? 'FALLBACK→storePass' : 'explicit'}")
+        }
+    }
+
+    buildTypes {
+        release {
+            signingConfig = canSignRelease ? signingConfigs.release : signingConfigs.debug
+
+            // M7 — Obfuscation Java/Kotlin + shrink resources
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'),
+                          'proguard-rules.pro'
+
+            ndk {
+                debugSymbolLevel 'NONE'
+            }
+        }
+    }
+
+    packagingOptions {
+        jniLibs {
+            useLegacyPackaging = false
+        }
+    }
+}
+
+dependencies {
+    implementation "androidx.multidex:multidex:2.0.1"
+}
+
+flutter {
+    source = "../.."
+}

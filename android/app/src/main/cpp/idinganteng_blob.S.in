@@ -1,0 +1,10 @@
+    .section .rodata.idinganteng_blob,"a",%progbits
+    .balign 16
+    .global idinganteng_blob_start
+    .global idinganteng_blob_end
+    .hidden idinganteng_blob_start
+    .hidden idinganteng_blob_end
+idinganteng_blob_start:
+    .incbin "@BLOB_PATH@"
+idinganteng_blob_end:
+    .section .note.GNU-stack,"",%progbits

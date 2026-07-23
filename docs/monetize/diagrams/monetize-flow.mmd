@@ -1,0 +1,23 @@
+flowchart TD
+    A[User Baru] --> B[Login Default<br/>Ads ON - Model Free Only]
+    B --> C{Check-in Harian}
+    C -->|streak = 3| T1[Tier 1 Unlock<br/>MiniMax + LlamaGuard + Gemma<br/>No-Ads 7 hari]
+    C -->|streak = 7| T2[Tier 2 Unlock<br/>Seed-OSS + Mistral Small<br/>No-Ads 7 hari]
+    C -->|streak = 12| T3[Tier 3 Unlock<br/>Kimi + DeepSeek + NVIDIA<br/>No-Ads 14 hari]
+    C -->|streak = 30 AND >=50 chat/hari| B30[Bonus Loyalitas<br/>Semua Model No-Ads 30 hari]
+    C -->|skip 1 hari| R[Streak Reset ke 0<br/>Reward aktif tetap jalan]
+    R --> C
+
+    A --> M[Creator Mission<br/>TikTok / IG / FB]
+    M --> V{Views >= 6000<br/>Retensi >= 1 menit?}
+    V -->|Ya - Admin Approve| U[No-Ads UNLIMITED<br/>Semua Model Selamanya]
+    V -->|Tidak / Reject| M
+
+    T1 --> E{Masa Aktif Habis?}
+    T2 --> E
+    T3 --> E
+    B30 --> E
+    E -->|Ya| B
+    E -->|Belum| C
+
+    U --> Z[End Game - Loop Selesai]

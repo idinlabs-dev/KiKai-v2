@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- M16 — app_name dipakai FacebookActivity label. -->
+    <string name="app_name">KiKai</string>
+</resources>

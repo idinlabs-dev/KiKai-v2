@@ -1,0 +1,210 @@
+name: Android Build
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build APK Release (obfuscated + multidex + native .so)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java (Temurin 17)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Setup Flutter (stable 3.24.x)
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.24.5"
+          channel: stable
+          cache: true
+
+      - name: Show Flutter version
+        run: flutter --version
+
+      # M7 — NDK untuk kompilasi native .so (memek/aegis/cipher/vault)
+      - name: Setup Android NDK
+        uses: nttld/setup-ndk@v1
+        with:
+          ndk-version: r25c
+
+      - name: Restore missing platform scaffolding (gradle wrapper, etc.)
+        run: |
+          flutter create \
+            --project-name app \
+            --org com.claudememek \
+            --platforms=android \
+            --no-pub \
+            .
+
+      # M8 — google-services.json sudah di-commit di android/app/google-services.json
+      # (berisi API key publik Firebase, aman ada di repo — proteksi asli via
+      # Firebase Security Rules + SHA-1 fingerprint). Tidak perlu inject dari secret.
+
+
+      - name: Get pub dependencies
+        run: flutter pub get
+
+      - name: Generate launcher icons
+        run: dart run flutter_launcher_icons
+        continue-on-error: true
+
+      # M17 — Decode release keystore dari GitHub Secret (kalau ada).
+      # Kalau secret belum di-set (workflow generate-keystore belum dijalanin),
+      # step ini no-op → build.gradle fallback ke debug signing.
+      - name: Decode release keystore from secret
+        id: keystore
+        env:
+          KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          if [ -n "$KEYSTORE_B64" ]; then
+            # `tr -d '\r\n '` strip whitespace tersembunyi kalau secret ke-paste
+            # dari web UI dgn trailing newline / soft-wrap (penyebab base64
+            # invalid input di history M8).
+            printf '%s' "$KEYSTORE_B64" | tr -d '\r\n ' | base64 -d > android/app/claude-release.jks
+            ls -la android/app/claude-release.jks
+            echo "has_release=1" >> $GITHUB_OUTPUT
+          else
+            echo "::warning::ANDROID_KEYSTORE_BASE64 belum di-set. Build pakai debug signing (SHA-1 acak, Google Sign-in bakal error DEVELOPER_ERROR). Jalanin workflow 'Generate Release Keystore' dulu."
+            echo "has_release=0" >> $GITHUB_OUTPUT
+          fi
+
+      # M18 — Pre-flight validation keystore ↔ password.
+      # Sebelum bakar 6 menit di ':app:packageRelease' dan mati dgn error
+      # kriptik "Given final block not properly padded", coba buka keystore
+      # duluan pakai password yg sama yang bakal dipakai Gradle. Kalau salah,
+      # fail 3 detik dgn pesan jelas + langkah recovery.
+      - name: Verify release keystore password (fail-fast)
+        if: steps.keystore.outputs.has_release == '1'
+        env:
+          STORE_PASS: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_PASS:   ${{ secrets.ANDROID_KEY_PASSWORD }}
+          KEY_ALIAS:  ${{ secrets.ANDROID_KEY_ALIAS }}
+        run: |
+          set -e
+          ALIAS="${KEY_ALIAS:-claude-release}"
+          # Fallback key pass → store pass (match build.gradle behavior).
+          EFFECTIVE_KEY_PASS="${KEY_PASS:-$STORE_PASS}"
+
+          if [ -z "$STORE_PASS" ]; then
+            echo "::error::ANDROID_KEYSTORE_PASSWORD kosong padahal keystore ter-decode."
+            echo "Fix: buka repo → Settings → Secrets → set ulang ANDROID_KEYSTORE_PASSWORD,"
+            echo "atau re-run workflow 'Generate Release Keystore' dengan force_regenerate=YES."
+            exit 1
+          fi
+
+          if ! keytool -list -keystore android/app/claude-release.jks \
+                       -alias "$ALIAS" -storepass "$STORE_PASS" \
+                       -keypass "$EFFECTIVE_KEY_PASS" > /dev/null 2>&1; then
+            echo "::error::Keystore/password MISMATCH — 'Given final block not properly padded' bakal muncul di packageRelease."
+            echo ""
+            echo "Root cause: nilai secret ANDROID_KEYSTORE_PASSWORD atau"
+            echo "ANDROID_KEY_PASSWORD gak match dengan password yg beneran"
+            echo "ada di dalam file claude-release.jks (secret ke-truncate,"
+            echo "salah paste, atau keystore lama tapi password di-regenerate)."
+            echo ""
+            echo "Recovery — pilih salah satu:"
+            echo "  A) Kalau lo masih punya backup .7z-nya: extract, ambil"
+            echo "     SECRETS.txt, paste ulang 4 secret ke GitHub."
+            echo "  B) Kalau backup hilang: Actions → 'Generate Release"
+            echo "     Keystore' → Run workflow → force_regenerate=YES."
+            echo "     Setelah itu WAJIB update SHA-1 baru di Firebase Console"
+            echo "     + download google-services.json baru + commit."
+            echo ""
+            echo "Detail lengkap: lihat HOTFIX-M18.md di root repo."
+            exit 1
+          fi
+          echo "✅ Keystore & password match. Aman lanjut build."
+
+      # M17 — Compute expected APK signature SHA-256.
+      # Kalau release keystore ada → pakai secret EXPECTED_SIG_SHA256 (di-set
+      # oleh generate-keystore workflow). Kalau nggak → fallback ke debug SHA
+      # (build tetep jalan, cuma anti-tamper native ke-skip di dev mode).
+      - name: Compute expected APK signature SHA-256
+        id: sig
+        env:
+          RELEASE_SHA: ${{ secrets.EXPECTED_SIG_SHA256 }}
+          HAS_RELEASE: ${{ steps.keystore.outputs.has_release }}
+        run: |
+          if [ "$HAS_RELEASE" = "1" ] && [ -n "$RELEASE_SHA" ]; then
+            echo "sha=$RELEASE_SHA" >> $GITHUB_OUTPUT
+            echo "Using release SHA-256 from secret: $RELEASE_SHA"
+          else
+            KEYSTORE="$HOME/.android/debug.keystore"
+            if [ ! -f "$KEYSTORE" ]; then
+              mkdir -p "$HOME/.android"
+              keytool -genkey -v -keystore "$KEYSTORE" -storepass android \
+                -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 \
+                -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
+            fi
+            SHA=$(keytool -list -v -keystore "$KEYSTORE" -alias androiddebugkey \
+                  -storepass android -keypass android \
+                  | grep 'SHA256:' | head -1 | awk '{print $2}' | tr -d ':' | tr 'a-z' 'A-Z')
+            echo "sha=$SHA" >> $GITHUB_OUTPUT
+            echo "Debug SHA-256 = $SHA"
+          fi
+
+      - name: Build APK (release, obfuscated, native .so, multidex)
+        env:
+          AI_API_KEY: ${{ secrets.AI_API_KEY }}
+          AI_API_KEYS: ${{ secrets.AI_API_KEYS }}
+          AI_API_BASE_URL: ${{ secrets.AI_API_BASE_URL }}
+          AI_DEFAULT_MODEL: ${{ secrets.AI_DEFAULT_MODEL }}
+          GAS_AUTH_URL: ${{ secrets.GAS_AUTH_URL }}
+          EXPECTED_SIG_SHA256: ${{ steps.sig.outputs.sha }}
+          # M16 — Facebook SDK build-time strings (resValue di build.gradle)
+          FACEBOOK_APP_ID: ${{ secrets.FACEBOOK_APP_ID }}
+          FACEBOOK_CLIENT_TOKEN: ${{ secrets.FACEBOOK_CLIENT_TOKEN }}
+          # M17 — Release signing config (di-baca di build.gradle kalau
+          # claude-release.jks decoded)
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS:         ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD:      ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          mkdir -p build/symbols
+          flutter build apk --release \
+            --obfuscate \
+            --split-debug-info=build/symbols \
+            --dart-define=AI_API_KEY="$AI_API_KEY" \
+            --dart-define=AI_API_KEYS="$AI_API_KEYS" \
+            --dart-define=AI_API_BASE_URL="${AI_API_BASE_URL:-https://api.kie.ai}" \
+            --dart-define=AI_DEFAULT_MODEL="${AI_DEFAULT_MODEL:-claude-haiku-4-5}" \
+            --dart-define=GAS_AUTH_URL="$GAS_AUTH_URL"
+
+      - name: Rename APK
+        run: |
+          mkdir -p artifact
+          cp build/app/outputs/flutter-apk/app-release.apk \
+             artifact/Claude48AI-release.apk
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Claude48AI-release-apk
+          path: artifact/Claude48AI-release.apk
+          retention-days: 14
+
+      - name: Upload Dart obfuscation symbols
+        uses: actions/upload-artifact@v4
+        with:
+          name: Claude48AI-debug-symbols
+          path: build/symbols
+          retention-days: 30
+
+      - name: Upload R8 mapping (Java/Kotlin obfuscation)
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Claude48AI-r8-mapping
+          path: build/app/outputs/mapping/release/mapping.txt
+          if-no-files-found: warn
+          retention-days: 30

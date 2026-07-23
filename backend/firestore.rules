@@ -1,0 +1,57 @@
+// M19 — Firestore rules. Copy-paste ke Firebase Console → Rules.
+//
+// Prasyarat: Sign-in menggunakan Firebase Auth (Google/Facebook OAuth
+// dari M16). GAS email/pass flow tidak menghasilkan Firebase Auth
+// token, sehingga user email/pass tidak lolos rules ini. Untuk M19
+// disarankan user memakai Google Sign-In.
+//
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() { return request.auth != null; }
+    function isSelf(uid)  { return isSignedIn() && request.auth.uid == uid; }
+    function isAdmin() {
+      return isSignedIn() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.is_admin == true;
+    }
+
+    // ── users/{uid} ────────────────────────────────────────────
+    match /users/{uid} {
+      allow read: if isSelf(uid) || isAdmin();
+      // User cuma boleh nulis field profile & session miliknya. Field
+      // entitlement (no_ads, pro_expired, nvidia_unlock, is_admin,
+      // creator_reward_claimed) hanya boleh diubah admin / server.
+      allow create, update: if isSelf(uid)
+        && !("no_ads" in request.resource.data.diff(resource.data).affectedKeys())
+        && !("pro_expired" in request.resource.data.diff(resource.data).affectedKeys())
+        && !("nvidia_unlock" in request.resource.data.diff(resource.data).affectedKeys())
+        && !("creator_reward_claimed" in request.resource.data.diff(resource.data).affectedKeys())
+        && !("is_admin" in request.resource.data.diff(resource.data).affectedKeys());
+      allow update: if isAdmin();
+
+      // sub-collections
+      match /threads/{threadId}       { allow read, write: if isSelf(uid); }
+      match /threads/{threadId}/messages/{msgId} { allow read, write: if isSelf(uid); }
+      match /streak/{docId}           { allow read, write: if isSelf(uid); }
+      match /session/{docId}          { allow read, write: if isSelf(uid); }
+    }
+
+    // ── creator_submissions ────────────────────────────────────
+    match /creator_submissions/{subId} {
+      // User boleh baca punya sendiri; admin boleh baca semua.
+      allow read: if isAdmin()
+        || (isSignedIn() && resource.data.uid == request.auth.uid);
+
+      // Buat submission: hanya untuk uid sendiri, status wajib pending,
+      // reward null, views nol.
+      allow create: if isSignedIn()
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.status == 'pending'
+        && request.resource.data.reward == null
+        && request.resource.data.views == 0;
+
+      // Update / delete: hanya admin (approve / reject / cleanup).
+      allow update, delete: if isAdmin();
+    }
+  }
+}
