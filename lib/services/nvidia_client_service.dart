@@ -244,7 +244,7 @@ class NvidiaClientService {
         low.contains('rate limit') ||
         low.contains('rate_limit') ||
         low.contains('too many requests')) {
-      return 'Server KiKai lagi rame banget nih, kuota request '
+      return 'Server KiKai lagi rame banget nih 😅 kuota request '
           'sementara penuh. Coba lagi beberapa detik ya.';
     }
     if (low.contains('socketexception') ||
@@ -272,7 +272,7 @@ class NvidiaClientService {
 
   String _friendlyStatus(int code, String body) {
     if (code == 429) {
-      return 'Server KiKai lagi rame banget nih, kuota request '
+      return 'Server KiKai lagi rame banget nih 😅 kuota request '
           'sementara penuh. Coba lagi beberapa detik ya.';
     }
     if (code == 401 || code == 403) {

@@ -3,19 +3,19 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'app_colors.dart';
 
-/// KiKai — ThemeData (M43 refresh).
+/// KiKai — ThemeData monokrom light-first.
 ///
-/// Cream + ink minimalist. Tipografi diganti ke **Inter** (bersih, netral,
-/// lebih dekat dengan feel ChatGPT/Linear). Radius, spacing, shadow, dan
-/// input diperhalus. `light` dan `dark` sengaja dibuat identik supaya
-/// widget custom yang membaca `AppColors` langsung tidak pecah saat
-/// toggle theme.
+/// Gaya hitam-putih minimalis, tanpa gradient/neon. Font utama
+/// **Plus Jakarta Sans** (geometric, bersih). Sebagian besar widget
+/// custom membaca [AppColors] langsung, jadi `light` & `dark` sengaja
+/// dibuat konsisten (light) supaya tampilan tidak pecah saat di-toggle.
 class AppTheme {
   AppTheme._();
 
   static ThemeData _build() {
     final base = ThemeData.light(useMaterial3: true);
-    final textTheme = GoogleFonts.interTextTheme(base.textTheme).apply(
+    final textTheme = GoogleFonts.plusJakartaSansTextTheme(base.textTheme)
+        .apply(
       bodyColor: AppColors.textPrimary,
       displayColor: AppColors.textPrimary,
     );
@@ -40,29 +40,24 @@ class AppTheme {
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: true,
-        titleTextStyle: GoogleFonts.inter(
+        titleTextStyle: GoogleFonts.plusJakartaSans(
           color: AppColors.textPrimary,
-          fontSize: 17,
+          fontSize: 18,
           fontWeight: FontWeight.w700,
-          letterSpacing: -0.2,
         ),
-        iconTheme: const IconThemeData(color: AppColors.textPrimary, size: 22),
       ),
       cardTheme: CardTheme(
         color: AppColors.surface,
         elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(18),
           side: const BorderSide(color: AppColors.divider, width: 1),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: AppColors.surface,
-        hintStyle: GoogleFonts.inter(
-          color: AppColors.textMuted,
-          fontSize: 14.5,
-        ),
+        hintStyle: const TextStyle(color: AppColors.textMuted),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide.none,
@@ -83,59 +78,22 @@ class AppTheme {
           backgroundColor: AppColors.primary,
           foregroundColor: Colors.white,
           elevation: 0,
-          padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 15),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),
           ),
-          textStyle: GoogleFonts.inter(
+          textStyle: GoogleFonts.plusJakartaSans(
             fontWeight: FontWeight.w700,
             fontSize: 14.5,
-            letterSpacing: -0.1,
           ),
         ),
       ),
-      outlinedButtonTheme: OutlinedButtonThemeData(
-        style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.textPrimary,
-          side: const BorderSide(color: AppColors.divider),
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
-          ),
-          textStyle: GoogleFonts.inter(
-            fontWeight: FontWeight.w600,
-            fontSize: 14.5,
-          ),
-        ),
-      ),
-      textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(
-          foregroundColor: AppColors.textPrimary,
-          textStyle: GoogleFonts.inter(
-            fontWeight: FontWeight.w600,
-            fontSize: 14,
-          ),
-        ),
-      ),
-      iconTheme: const IconThemeData(color: AppColors.textPrimary, size: 22),
-      chipTheme: ChipThemeData(
-        backgroundColor: AppColors.surfaceHigh,
-        side: BorderSide.none,
-        labelStyle: GoogleFonts.inter(
-          fontSize: 12.5,
-          fontWeight: FontWeight.w600,
-          color: AppColors.textPrimary,
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(999),
-        ),
-      ),
+      iconTheme: const IconThemeData(color: AppColors.textPrimary),
       snackBarTheme: SnackBarThemeData(
         backgroundColor: AppColors.primary,
-        contentTextStyle: GoogleFonts.inter(color: Colors.white),
+        contentTextStyle: GoogleFonts.plusJakartaSans(color: Colors.white),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(12),
         ),
         behavior: SnackBarBehavior.floating,
       ),
@@ -143,26 +101,7 @@ class AppTheme {
         backgroundColor: AppColors.surface,
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(22),
-        ),
-        titleTextStyle: GoogleFonts.inter(
-          color: AppColors.textPrimary,
-          fontSize: 17,
-          fontWeight: FontWeight.w700,
-          letterSpacing: -0.2,
-        ),
-        contentTextStyle: GoogleFonts.inter(
-          color: AppColors.textSecondary,
-          fontSize: 14,
-          height: 1.5,
-        ),
-      ),
-      bottomSheetTheme: const BottomSheetThemeData(
-        backgroundColor: AppColors.surface,
-        surfaceTintColor: Colors.transparent,
-        shape: RoundedRectangleBorder(
-          borderRadius:
-              BorderRadius.vertical(top: Radius.circular(24)),
+          borderRadius: BorderRadius.circular(20),
         ),
       ),
       drawerTheme: const DrawerThemeData(
@@ -171,30 +110,6 @@ class AppTheme {
       ),
       progressIndicatorTheme: const ProgressIndicatorThemeData(
         color: AppColors.primary,
-      ),
-      dividerTheme: const DividerThemeData(
-        color: AppColors.divider,
-        thickness: 1,
-        space: 1,
-      ),
-      listTileTheme: ListTileThemeData(
-        iconColor: AppColors.textPrimary,
-        textColor: AppColors.textPrimary,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(14),
-        ),
-      ),
-      switchTheme: SwitchThemeData(
-        thumbColor: MaterialStateProperty.resolveWith(
-          (s) => s.contains(MaterialState.selected)
-              ? Colors.white
-              : AppColors.surface,
-        ),
-        trackColor: MaterialStateProperty.resolveWith(
-          (s) => s.contains(MaterialState.selected)
-              ? AppColors.primary
-              : AppColors.surfaceHigh,
-        ),
       ),
     );
   }

@@ -226,7 +226,7 @@ class AboutPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 6),
                   const Text(
-                    '© 2026 Idin Iskandar. Dibuat di Indonesia.',
+                    '© 2026 Idin Iskandar. Dibuat dengan ❤ di Indonesia.',
                     style: TextStyle(
                       color: AppColors.textMuted,
                       fontSize: 11.5,

@@ -170,11 +170,11 @@ class ModelDetailPage extends StatelessWidget {
 
   static String _ctaText(AiModel m) {
     final id = m.apiModelId ?? m.id;
-    if (m.id == 'kimi') return 'Chat Ngebut Sekarang';
-    if (id.startsWith('glm')) return 'Mulai Chat dengan GLM';
-    if (id.startsWith('gpt-oss')) return 'Coba GPT-OSS Sekarang';
-    if (id == 'nvidia-ultra') return 'Mulai Chat Sekarang';
-    return 'Coba Chat Sekarang';
+    if (m.id == 'kimi') return '⚡ Chat Ngebut Sekarang';
+    if (id.startsWith('glm')) return '✨ Mulai Chat dengan GLM';
+    if (id.startsWith('gpt-oss')) return '🚀 Coba GPT-OSS Sekarang';
+    if (id == 'nvidia-ultra') return '💬 Mulai Chat Sekarang';
+    return '💬 Coba Chat Sekarang';
   }
 }
 

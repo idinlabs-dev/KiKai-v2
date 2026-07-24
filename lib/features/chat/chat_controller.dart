@@ -239,7 +239,7 @@ class ChatController extends ChangeNotifier {
     if (false) {
     } else if (!hasImages && urls.isNotEmpty) {
       final target = urls.first;
-      _setWebStatus('Membaca link...');
+      _setWebStatus('📖 Membaca link...');
       final r = await WebToolsService.instance.readUrl(target);
       _setWebStatus(null);
       if (r.ok) {
@@ -349,7 +349,7 @@ class ChatController extends ChangeNotifier {
           _error = e is AiClientException ? e.message : e.toString();
           _updateAssistant(
             assistantMsg.id,
-            buf.isEmpty ? 'Error: $_error' : buf.toString(),
+            buf.isEmpty ? '⚠️ $_error' : buf.toString(),
             streaming: false,
           );
           if (!completer.isCompleted) completer.complete();

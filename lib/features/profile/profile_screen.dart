@@ -14,7 +14,7 @@ import '../settings/settings_screen.dart';
 /// Fitur utama:
 /// - Header profil placeholder (avatar + nama lokal — sinkron login cloud
 ///   masuk di milestone berikutnya).
-/// - Kartu streak 7-hari (grid harian + reward) + progress bar.
+/// - Kartu streak 7-hari (grid ✅✅✅…🎁) + progress bar.
 /// - Badge status **Premium Mode** (aktif bila streak ≥ 7).
 /// - Section rotasi API key ringkas (informational, tidak expose full key).
 class ProfileScreen extends StatefulWidget {
@@ -300,7 +300,7 @@ class _DayCell extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         Text(
-          isReward ? 'R' : 'H$day',
+          isReward ? '🎁' : 'H$day',
           style: TextStyle(
             fontSize: 10,
             fontWeight: FontWeight.w600,
@@ -446,14 +446,14 @@ Future<void> showReachedPremiumDialog(BuildContext context) {
       backgroundColor: AppColors.surfaceElevated,
       title: const Row(
         children: [
-          Text('Selamat!'),
+          Text('🎉  Selamat!'),
         ],
       ),
       content: const Text(
         'Kamu mendapatkan:\n\n'
-        '- Premium Mode\n'
-        '- Bebas iklan\n'
-        '- Pengalaman AI lebih nyaman\n\n'
+        '⭐ Premium Mode\n'
+        '🚫 Bebas iklan\n'
+        '⚡ Pengalaman AI lebih nyaman\n\n'
         'Tetap login setiap hari agar status premium tidak hilang.',
       ),
       actions: [
@@ -472,7 +472,7 @@ Future<void> showStreakBrokenDialog(BuildContext context) {
     context: context,
     builder: (ctx) => AlertDialog(
       backgroundColor: AppColors.surfaceElevated,
-      title: const Text('Streak terputus!'),
+      title: const Text('💀  Streak terputus!'),
       content: const Text(
         'Kamu tidak membuka aplikasi selama 1 hari.\n\n'
         'Status premium telah dicabut. Silakan mulai kembali dari hari '
@@ -524,7 +524,7 @@ class _DonationCard extends StatelessWidget {
           const Text(
             'Kalau KiKai ngebantu kamu, boleh banget kirim donasi lewat '
             'QRIS di bawah. Scan pakai app bank / e-wallet apa aja — '
-            'nominal bebas. Makasih banyak, bro.',
+            'nominal bebas. Makasih banyak, bro 🙏',
             style: TextStyle(
               color: AppColors.textSecondary,
               fontSize: 13,

@@ -611,7 +611,7 @@ class _DailyCheckInCardState extends State<_DailyCheckInCard> {
       String body = 'Streak kamu sekarang $count hari. Balik lagi besok!';
       switch (result) {
         case StreakCheckInResult.reachedPremium:
-          title = 'KiKai Balanced ter-unlock';
+          title = '🎉 KiKai Balanced ter-unlock';
           body = '7 hari berturut! Model Balanced kebuka permanen '
               'selama streak dijaga.';
           break;
