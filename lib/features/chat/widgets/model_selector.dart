@@ -115,10 +115,18 @@ class _ModelSelectorSheetState extends State<_ModelSelectorSheet> {
             else
               ConstrainedBox(
                 constraints: BoxConstraints(
-                  maxHeight: MediaQuery.of(context).size.height * 0.6,
+                  maxHeight: MediaQuery.of(context).size.height * 0.62,
                 ),
-                child: ListView.builder(
+                child: GridView.builder(
                   shrinkWrap: true,
+                  padding: EdgeInsets.zero,
+                  gridDelegate:
+                      const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 10,
+                    crossAxisSpacing: 10,
+                    childAspectRatio: 0.98,
+                  ),
                   itemCount: kAiModels.length,
                   itemBuilder: (_, i) {
                     final m = kAiModels[i];
@@ -164,73 +172,70 @@ class _ModelTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Material(
-        color: selected ? AppColors.surfaceHigh : AppColors.surfaceElevated,
-        borderRadius: BorderRadius.circular(14),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(14),
-          onTap: onTap,
-          child: Container(
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(
-                color: selected ? AppColors.primary : AppColors.divider,
-                width: selected ? 1.4 : 1,
-              ),
+    return Material(
+      color: selected ? AppColors.surfaceHigh : AppColors.surfaceElevated,
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: selected ? AppColors.primary : AppColors.divider,
+              width: selected ? 1.4 : 1,
             ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _ModelIcon(model: model, locked: locked),
-                const SizedBox(width: 12),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  _ModelIcon(model: model, locked: locked),
+                  const Spacer(),
+                  if (locked)
+                    _Badge(
+                      icon: Icons.lock_rounded,
+                      text: model.lockedReason.isEmpty
+                          ? 'LOCK'
+                          : model.lockedReason.toUpperCase(),
+                      color: AppColors.warning,
+                    )
+                  else if (selected)
+                    const _Badge(text: 'Aktif', color: AppColors.primary),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Text(
+                model.label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: locked
+                      ? AppColors.textMuted
+                      : AppColors.textPrimary,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 4),
+              if (model.description.isNotEmpty)
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(children: [
-                        Expanded(
-                          child: Text(
-                            model.label,
-                            style: TextStyle(
-                              color: locked
-                                  ? AppColors.textMuted
-                                  : AppColors.textPrimary,
-                              fontSize: 14.5,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                        if (locked)
-                          _Badge(
-                            icon: Icons.lock_rounded,
-                            text: model.lockedReason.isEmpty
-                                ? 'LOCKED'
-                                : model.lockedReason.toUpperCase(),
-                            color: AppColors.warning,
-                          )
-                        else if (selected)
-                          const _Badge(text: 'Aktif', color: AppColors.primary),
-                      ]),
-                      const SizedBox(height: 4),
-                      if (model.description.isNotEmpty)
-                        Text(
-                          model.description,
-                          style: TextStyle(
-                            color: locked
-                                ? AppColors.textMuted
-                                : AppColors.textSecondary,
-                            fontSize: 12.5,
-                            height: 1.35,
-                          ),
-                        ),
-                    ],
+                  child: Text(
+                    model.description,
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: locked
+                          ? AppColors.textMuted
+                          : AppColors.textSecondary,
+                      fontSize: 11.5,
+                      height: 1.35,
+                    ),
                   ),
                 ),
-              ],
-            ),
+            ],
           ),
         ),
       ),

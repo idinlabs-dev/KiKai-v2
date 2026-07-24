@@ -29,6 +29,7 @@ class _SkillSelectorSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final items = SkillsService.catalog.toList();
     return SafeArea(
       child: Padding(
         padding: EdgeInsets.only(
@@ -71,12 +72,21 @@ class _SkillSelectorSheet extends StatelessWidget {
                 style: TextStyle(color: AppColors.textMuted, fontSize: 12),
               ),
             ),
-            for (final opt in SkillsService.catalog)
-              _SkillTile(
-                option: opt,
-                selected: opt.id == currentId,
-                onTap: () => Navigator.of(context).pop(opt.id),
-              ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (int i = 0; i < items.length; i++) ...[
+                  Expanded(
+                    child: _SkillTile(
+                      option: items[i],
+                      selected: items[i].id == currentId,
+                      onTap: () => Navigator.of(context).pop(items[i].id),
+                    ),
+                  ),
+                  if (i != items.length - 1) const SizedBox(width: 10),
+                ],
+              ],
+            ),
           ],
         ),
       ),
@@ -96,76 +106,92 @@ class _SkillTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Material(
-        color: selected ? AppColors.surfaceHigh : AppColors.surfaceElevated,
-        borderRadius: BorderRadius.circular(14),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(14),
-          onTap: onTap,
-          child: Container(
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(
-                color: selected ? AppColors.primary : AppColors.divider,
-                width: selected ? 1.4 : 1,
+    return Material(
+      color: selected ? AppColors.surfaceHigh : AppColors.surfaceElevated,
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 14),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: selected ? AppColors.primary : AppColors.divider,
+              width: selected ? 1.4 : 1,
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: selected
+                          ? AppColors.primary.withOpacity(0.14)
+                          : AppColors.surfaceHigh,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(
+                        color: selected
+                            ? AppColors.primary.withOpacity(0.4)
+                            : AppColors.divider,
+                      ),
+                    ),
+                    child: Icon(
+                      option.icon,
+                      size: 22,
+                      color: selected
+                          ? AppColors.primary
+                          : AppColors.textPrimary,
+                    ),
+                  ),
+                  if (selected)
+                    Positioned(
+                      right: -4,
+                      top: -4,
+                      child: Container(
+                        width: 16,
+                        height: 16,
+                        decoration: const BoxDecoration(
+                          color: AppColors.primary,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.check,
+                            size: 11, color: Colors.white),
+                      ),
+                    ),
+                ],
               ),
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Container(
-                  width: 42,
-                  height: 42,
-                  decoration: BoxDecoration(
-                    color: AppColors.surfaceHigh,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.divider),
-                  ),
-                  child: Icon(
-                    option.icon,
-                    size: 22,
-                    color: selected
-                        ? AppColors.primary
-                        : AppColors.textPrimary,
-                  ),
+              const SizedBox(height: 10),
+              Text(
+                option.label,
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: AppColors.textPrimary,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        option.label,
-                        style: const TextStyle(
-                          color: AppColors.textPrimary,
-                          fontSize: 14.5,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      const SizedBox(height: 3),
-                      Text(
-                        option.subtitle,
-                        style: const TextStyle(
-                          color: AppColors.textSecondary,
-                          fontSize: 12.5,
-                          height: 1.35,
-                        ),
-                      ),
-                    ],
-                  ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                option.subtitle,
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: 11,
+                  height: 1.3,
                 ),
-                const SizedBox(width: 8),
-                if (selected)
-                  const Icon(
-                    Icons.check_circle_rounded,
-                    color: AppColors.primary,
-                    size: 22,
-                  ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

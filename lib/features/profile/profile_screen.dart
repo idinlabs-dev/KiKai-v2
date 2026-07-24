@@ -97,16 +97,16 @@ class _ProfileHeader extends StatelessWidget {
     return Row(
       children: [
         Container(
-          width: 110,
-          height: 110,
+          width: 68,
+          height: 68,
           decoration: BoxDecoration(
             gradient: AppColors.brandGradient,
-            borderRadius: BorderRadius.circular(32),
+            borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
                 color: AppColors.primary.withOpacity(0.16),
-                blurRadius: 30,
-                offset: const Offset(0, 14),
+                blurRadius: 18,
+                offset: const Offset(0, 8),
               ),
             ],
           ),
@@ -115,12 +115,12 @@ class _ProfileHeader extends StatelessWidget {
             'K',
             style: TextStyle(
               color: AppColors.surface,
-              fontSize: 54,
+              fontSize: 32,
               fontWeight: FontWeight.w800,
             ),
           ),
         ),
-        const SizedBox(width: 24),
+        const SizedBox(width: 14),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -130,7 +130,7 @@ class _ProfileHeader extends StatelessWidget {
                     ? AuthService.instance.current!.name
                     : 'Kamu',
                 style: const TextStyle(
-                  fontSize: 28,
+                  fontSize: 18,
                   fontWeight: FontWeight.w800,
                   color: AppColors.textPrimary,
                 ),
@@ -139,7 +139,7 @@ class _ProfileHeader extends StatelessWidget {
               Text(
                 'Pengguna ${AppConfig.appName}',
                 style: const TextStyle(
-                  fontSize: 22,
+                  fontSize: 13,
                   color: AppColors.textMuted,
                 ),
               ),
@@ -167,10 +167,10 @@ class _StreakCard extends StatelessWidget {
         : 'Check-in terakhir: ${DateFormat('d MMM yyyy').format(state.lastCheckInDate!)}';
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(28, 26, 28, 28),
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
       decoration: BoxDecoration(
         color: AppColors.surfaceElevated,
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(color: AppColors.divider),
       ),
       child: Column(
@@ -179,20 +179,20 @@ class _StreakCard extends StatelessWidget {
           Row(
             children: [
               const Icon(LucideIcons.flame,
-                  color: AppColors.accent, size: 26),
-              const SizedBox(width: 14),
+                  color: AppColors.accent, size: 18),
+              const SizedBox(width: 8),
               const Text(
                 'Daily Login Streak',
                 style: TextStyle(
                   color: AppColors.textPrimary,
-                  fontWeight: FontWeight.w800,
-                  fontSize: 25,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 15,
                 ),
               ),
               const Spacer(),
               Container(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 9),
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
                   color: AppColors.softChip,
                   borderRadius: BorderRadius.circular(999),
@@ -202,35 +202,35 @@ class _StreakCard extends StatelessWidget {
                   style: const TextStyle(
                     color: AppColors.primary,
                     fontWeight: FontWeight.w700,
-                    fontSize: 20,
+                    fontSize: 12,
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 14),
           _DaysGrid(count: count),
-          const SizedBox(height: 24),
+          const SizedBox(height: 14),
           ClipRRect(
             borderRadius: BorderRadius.circular(999),
             child: LinearProgressIndicator(
               value: progress,
-              minHeight: 12,
+              minHeight: 6,
               backgroundColor: AppColors.surfaceHigh,
               valueColor:
                   const AlwaysStoppedAnimation<Color>(AppColors.primary),
             ),
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 10),
           Text(
             lastLabel,
-            style: const TextStyle(color: AppColors.textMuted, fontSize: 19),
+            style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 6),
           const Text(
             'Buka aplikasi setiap hari agar streak tidak putus. '
             'Skip 1 hari → streak reset ke 0.',
-            style: TextStyle(color: AppColors.textSecondary, fontSize: 22, height: 1.35),
+            style: TextStyle(color: AppColors.textSecondary, fontSize: 12.5, height: 1.4),
           ),
         ],
       ),
@@ -287,23 +287,23 @@ class _DayCell extends StatelessWidget {
     return Column(
       children: [
         Container(
-          height: 68,
+          height: 42,
           decoration: BoxDecoration(
             color: bg,
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(10),
             border: Border.all(
               color: done ? Colors.transparent : AppColors.divider,
             ),
           ),
           alignment: Alignment.center,
-          child: Icon(icon, size: 25, color: fg),
+          child: Icon(icon, size: 16, color: fg),
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 6),
         Text(
           isReward ? 'R' : 'H$day',
           style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w800,
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
             color: done ? AppColors.textPrimary : AppColors.textMuted,
           ),
         ),
@@ -321,14 +321,14 @@ class _PremiumStatusCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(28),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: active
             ? AppColors.brandGradient
             : const LinearGradient(
                 colors: [AppColors.surfaceElevated, AppColors.surfaceElevated],
               ),
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: active ? Colors.transparent : AppColors.divider,
         ),
@@ -336,13 +336,13 @@ class _PremiumStatusCard extends StatelessWidget {
       child: Row(
         children: [
           Container(
-          width: 76,
-          height: 76,
+          width: 48,
+          height: 48,
             decoration: BoxDecoration(
               color: active
                   ? AppColors.surface.withOpacity(0.18)
                   : AppColors.surfaceHigh,
-              borderRadius: BorderRadius.circular(18),
+              borderRadius: BorderRadius.circular(14),
             ),
             alignment: Alignment.center,
             child: Icon(
@@ -350,10 +350,10 @@ class _PremiumStatusCard extends StatelessWidget {
                   ? LucideIcons.badgeCheck
                   : LucideIcons.lock,
               color: active ? AppColors.surface : AppColors.textMuted,
-              size: 32,
+              size: 22,
             ),
           ),
-          const SizedBox(width: 14),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -363,10 +363,10 @@ class _PremiumStatusCard extends StatelessWidget {
                   style: TextStyle(
                     color: active ? AppColors.surface : AppColors.textPrimary,
                     fontWeight: FontWeight.w700,
-                    fontSize: 25,
+                    fontSize: 15,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 3),
                 Text(
                   active
                       ? 'Bebas iklan · pengalaman AI lebih nyaman.'
@@ -375,7 +375,7 @@ class _PremiumStatusCard extends StatelessWidget {
                     color: active
                         ? AppColors.surface.withOpacity(0.9)
                         : AppColors.textSecondary,
-                    fontSize: 21,
+                    fontSize: 12.5,
                   ),
                 ),
               ],

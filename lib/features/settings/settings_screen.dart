@@ -170,7 +170,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: AppColors.textPrimary,
-                            fontSize: 32,
+                            fontSize: 22,
                             fontWeight: FontWeight.w800,
                           ),
                         ),
@@ -300,8 +300,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             SizedBox(
-                              width: 26,
-                              height: 26,
+                              width: 20,
+                              height: 20,
                               child: ClipOval(
                                 child: Image.asset(
                                   'assets/mascot/claude_ai_mascot.png',
@@ -311,12 +311,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 8),
+                            const SizedBox(width: 6),
                             const Text(
                               'KiKai ',
                               style: TextStyle(
                                 color: AppColors.textPrimary,
-                                fontSize: 16,
+                                fontSize: 12,
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
@@ -327,7 +327,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 'AI',
                                 style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: 16,
+                                  fontSize: 12,
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),
@@ -363,25 +363,25 @@ class _ProfileCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       color: AppColors.surfaceElevated,
-      borderRadius: BorderRadius.circular(28),
+      borderRadius: BorderRadius.circular(20),
       child: InkWell(
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(20),
         onTap: () {
           Navigator.of(context).push(
             MaterialPageRoute(builder: (_) => const ProfileScreen()),
           );
         },
         child: Container(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(28),
+            borderRadius: BorderRadius.circular(20),
             border: Border.all(color: AppColors.divider),
           ),
           child: Row(
             children: [
               Container(
-                width: 84,
-                height: 84,
+                width: 52,
+                height: 52,
                 decoration: const BoxDecoration(
                   gradient: AppColors.avatarGradient,
                   shape: BoxShape.circle,
@@ -397,7 +397,7 @@ class _ProfileCard extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: 14),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -406,14 +406,14 @@ class _ProfileCard extends StatelessWidget {
                       'Guest User',
                       style: TextStyle(
                         color: AppColors.textPrimary,
-                        fontSize: 28,
+                        fontSize: 16,
                         fontWeight: FontWeight.w800,
                       ),
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 4),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 3),
+                          horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(
                   color: AppColors.softChip,
                   borderRadius: BorderRadius.circular(999),
@@ -422,7 +422,7 @@ class _ProfileCard extends StatelessWidget {
                         'Guest',
                         style: TextStyle(
                           color: AppColors.primary,
-                          fontSize: 18,
+                          fontSize: 10,
                           fontWeight: FontWeight.w800,
                         ),
                       ),
@@ -430,7 +430,7 @@ class _ProfileCard extends StatelessWidget {
                   ],
                 ),
               ),
-              const Icon(LucideIcons.chevronRight,
+              const Icon(LucideIcons.chevronRight, size: 18,
                   color: AppColors.textMuted),
             ],
           ),
@@ -452,9 +452,9 @@ class _SectionLabel extends StatelessWidget {
         text,
         style: const TextStyle(
           color: AppColors.primary,
-          fontSize: 22,
+          fontSize: 11,
           fontWeight: FontWeight.w800,
-          letterSpacing: 1.8,
+          letterSpacing: 1.4,
         ),
       ),
     );
@@ -470,7 +470,7 @@ class _CardGroup extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.surfaceElevated,
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(color: AppColors.divider),
       ),
       child: Column(children: children),
@@ -485,7 +485,7 @@ class _RowDivider extends StatelessWidget {
       height: 1,
       thickness: 1,
       color: AppColors.divider,
-      indent: 48,
+      indent: 56,
     );
   }
 }
@@ -509,20 +509,20 @@ class _NavRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(24),
+      borderRadius: BorderRadius.circular(18),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 22),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(
           children: [
             Container(
-              width: 54,
-              height: 54,
+              width: 36,
+              height: 36,
               alignment: Alignment.center,
               decoration: BoxDecoration(
                 color: AppColors.iconTile,
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(icon, size: 26, color: AppColors.textPrimary),
+              child: Icon(icon, size: 18, color: AppColors.textPrimary),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -530,24 +530,24 @@ class _NavRow extends StatelessWidget {
                 label,
                 style: const TextStyle(
                   color: AppColors.textPrimary,
-                  fontSize: 26,
-                  fontWeight: FontWeight.w800,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ),
             if (trailingText != null)
               Padding(
-                padding: const EdgeInsets.only(right: 6),
+                padding: const EdgeInsets.only(right: 4),
                 child: Text(
                   trailingText!,
                   style: const TextStyle(
                     color: AppColors.textMuted,
-                    fontSize: 20,
+                    fontSize: 13,
                   ),
                 ),
               ),
             trailing ??
-                const Icon(LucideIcons.chevronRight,
+                const Icon(LucideIcons.chevronRight, size: 16,
                     color: AppColors.textMuted),
           ],
         ),
@@ -570,28 +570,28 @@ class _DangerRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       color: AppColors.danger.withOpacity(0.08),
-      borderRadius: BorderRadius.circular(28),
+      borderRadius: BorderRadius.circular(20),
       child: InkWell(
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(20),
         onTap: onTap,
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(28),
+            borderRadius: BorderRadius.circular(20),
             border: Border.all(color: AppColors.danger.withOpacity(0.4)),
           ),
           child: Row(
             children: [
               Container(
-                width: 54,
-                height: 54,
+                width: 36,
+                height: 36,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                   color: AppColors.dangerTile,
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(icon,
-                    size: 26, color: AppColors.danger),
+                    size: 18, color: AppColors.danger),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -599,12 +599,12 @@ class _DangerRow extends StatelessWidget {
                   label,
                   style: const TextStyle(
                     color: AppColors.danger,
-                    fontSize: 25,
+                    fontSize: 15,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
-              const Icon(LucideIcons.chevronRight,
+              const Icon(LucideIcons.chevronRight, size: 16,
                   color: AppColors.danger),
             ],
           ),
@@ -623,19 +623,19 @@ class _ThemeRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = value == ThemeMode.dark;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 22),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
         children: [
           Container(
-            width: 54,
-            height: 54,
+            width: 36,
+            height: 36,
             alignment: Alignment.center,
             decoration: BoxDecoration(
               color: AppColors.iconTile,
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(10),
             ),
             child: const Icon(LucideIcons.palette,
-                size: 26, color: AppColors.textPrimary),
+                size: 18, color: AppColors.textPrimary),
           ),
           const SizedBox(width: 12),
           const Expanded(
@@ -643,13 +643,13 @@ class _ThemeRow extends StatelessWidget {
               'Theme',
               style: TextStyle(
                 color: AppColors.textPrimary,
-                fontSize: 26,
-                fontWeight: FontWeight.w800,
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
               ),
             ),
           ),
           Container(
-            padding: const EdgeInsets.all(5),
+            padding: const EdgeInsets.all(3),
             decoration: BoxDecoration(
               color: AppColors.surfaceHigh,
               borderRadius: BorderRadius.circular(999),
@@ -691,7 +691,7 @@ class _SegBtn extends StatelessWidget {
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
         decoration: BoxDecoration(
           gradient: active ? AppColors.avatarGradient : null,
           borderRadius: BorderRadius.circular(999),
@@ -700,8 +700,8 @@ class _SegBtn extends StatelessWidget {
           label,
           style: TextStyle(
             color: active ? AppColors.surface : AppColors.textSecondary,
-            fontSize: 20,
-            fontWeight: FontWeight.w800,
+            fontSize: 12,
+            fontWeight: FontWeight.w700,
           ),
         ),
       ),
