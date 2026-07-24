@@ -225,6 +225,7 @@ class _AssistantRow extends StatelessWidget {
                     DeepResearchCard(
                       topic: researchTopic ?? '',
                       active: message.isStreaming,
+                      streamingContent: message.content,
                     ),
                   if (showCompletedCard) ...[
                     const Padding(
@@ -246,13 +247,13 @@ class _AssistantRow extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                   ],
-                  if (isStreamingEmpty)
+                  if (isStreamingEmpty && !showPlanCard)
                     const Padding(
                       padding: EdgeInsets.symmetric(vertical: 6),
                       child: ThinkingIndicator(),
                     )
 
-                  else if (!showCompletedCard)
+                  else if (!showCompletedCard && !showPlanCard)
                     MarkdownBody(
                       data: message.content,
                       selectable: true,
@@ -267,7 +268,7 @@ class _AssistantRow extends StatelessWidget {
                         ],
                       ),
                     ),
-                  if (message.isStreaming && !isStreamingEmpty) ...[
+                  if (message.isStreaming && !isStreamingEmpty && !showPlanCard) ...[
                     const SizedBox(height: 6),
                     const _BlinkingCursor(),
                   ],

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../research_report_page.dart';
@@ -27,12 +28,18 @@ class DeepResearchCard extends StatefulWidget {
   /// Waktu selesai untuk badge tanggal di kartu completed.
   final DateTime? completedAt;
 
+  /// M46 — Streaming markdown live yang dirender DI DALAM kartu saat
+  /// riset masih berjalan (mirip Gemini/ChatGPT). Kalau null/kosong,
+  /// hanya blok status "sedang mengerjakan" yang tampil.
+  final String? streamingContent;
+
   const DeepResearchCard({
     super.key,
     required this.topic,
     required this.active,
     this.reportMarkdown,
     this.completedAt,
+    this.streamingContent,
   });
 
   @override
@@ -151,6 +158,83 @@ class _DeepResearchCardState extends State<DeepResearchCard>
             active: _step == 2,
             body: null,
           ),
+          // ── M46 — Live streaming preview di dalam kartu ─────────────
+          if ((widget.streamingContent ?? '').trim().isNotEmpty) ...[
+            const SizedBox(height: 4),
+            const Divider(height: 1, color: AppColors.divider),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration: const BoxDecoration(
+                    color: AppColors.accent,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                const Text(
+                  'Menyusun laporan',
+                  style: TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.2,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Container(
+              constraints: const BoxConstraints(maxHeight: 320),
+              padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+              decoration: BoxDecoration(
+                color: AppColors.background,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.divider),
+              ),
+              child: SingleChildScrollView(
+                reverse: true,
+                child: MarkdownBody(
+                  data: widget.streamingContent!,
+                  selectable: false,
+                  softLineBreak: true,
+                  styleSheet: MarkdownStyleSheet(
+                    p: const TextStyle(
+                      color: AppColors.textPrimary,
+                      fontSize: 13.5,
+                      height: 1.5,
+                    ),
+                    h1: const TextStyle(
+                      color: AppColors.textPrimary,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
+                    ),
+                    h2: const TextStyle(
+                      color: AppColors.textPrimary,
+                      fontSize: 14.5,
+                      fontWeight: FontWeight.w800,
+                    ),
+                    h3: const TextStyle(
+                      color: AppColors.textPrimary,
+                      fontSize: 13.5,
+                      fontWeight: FontWeight.w700,
+                    ),
+                    listBullet: const TextStyle(
+                      color: AppColors.textPrimary,
+                      fontSize: 13.5,
+                    ),
+                    strong: const TextStyle(
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+          ] else
           Padding(
             padding: const EdgeInsets.only(top: 4, bottom: 12),
             child: Row(

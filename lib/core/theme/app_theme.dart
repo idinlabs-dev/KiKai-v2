@@ -24,7 +24,7 @@ class AppTheme {
       colorScheme: const ColorScheme.light(
         primary: AppColors.primary,
         onPrimary: AppColors.surface,
-        secondary: AppColors.primary,
+        secondary: AppColors.accent,
         onSecondary: AppColors.surface,
         surface: AppColors.surface,
         onSurface: AppColors.textPrimary,
@@ -50,7 +50,7 @@ class AppTheme {
         color: AppColors.surface,
         elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(28),
+          borderRadius: BorderRadius.circular(24),
           side: const BorderSide(color: AppColors.divider, width: 1),
         ),
       ),

@@ -167,7 +167,7 @@ class _Header extends StatelessWidget {
             ),
             alignment: Alignment.center,
             child: const Text(
-              'C',
+              'K',
               style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.w800,

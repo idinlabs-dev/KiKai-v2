@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../models/ai_model.dart';
@@ -97,47 +97,61 @@ class _BottomNav extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
-        color: AppColors.background,
-        border: Border(top: BorderSide(color: AppColors.divider, width: 1)),
-      ),
+      color: AppColors.background,
       child: SafeArea(
         top: false,
         child: SizedBox(
-          height: 78,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              _NavItem(
-                icon: LucideIcons.messageCircle,
-                iconActive: LucideIcons.messageCircle,
-                label: 'Chat',
-                selected: page == 0,
-                onTap: () => onSelectPage(0),
+          height: 86,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(14, 8, 14, 12),
+            child: Container(
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(28),
+                border: Border.all(color: AppColors.divider),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.primary.withOpacity(0.08),
+                    blurRadius: 20,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
               ),
-              _NavItem(
-                icon: LucideIcons.history,
-                iconActive: LucideIcons.history,
-                label: 'History',
-                selected: page == 1,
-                onTap: () => onSelectPage(1),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  _NavItem(
+                    icon: PhosphorIconsDuotone.chatCircleDots,
+                    iconActive: PhosphorIconsFill.chatCircleDots,
+                    label: 'Chat',
+                    selected: page == 0,
+                    onTap: () => onSelectPage(0),
+                  ),
+                  _NavItem(
+                    icon: PhosphorIconsDuotone.clockCounterClockwise,
+                    iconActive: PhosphorIconsFill.clockCounterClockwise,
+                    label: 'History',
+                    selected: page == 1,
+                    onTap: () => onSelectPage(1),
+                  ),
+                  _KikaiButton(onTap: onKikai),
+                  _NavItem(
+                    icon: PhosphorIconsDuotone.sparkle,
+                    iconActive: PhosphorIconsFill.sparkle,
+                    label: 'Models',
+                    selected: page == 2,
+                    onTap: () => onSelectPage(2),
+                  ),
+                  _NavItem(
+                    icon: PhosphorIconsDuotone.userCircle,
+                    iconActive: PhosphorIconsFill.userCircle,
+                    label: 'Profile',
+                    selected: page == 3,
+                    onTap: () => onSelectPage(3),
+                  ),
+                ],
               ),
-              _KikaiButton(onTap: onKikai),
-              _NavItem(
-                icon: LucideIcons.sparkles,
-                iconActive: LucideIcons.sparkles,
-                label: 'Models',
-                selected: page == 2,
-                onTap: () => onSelectPage(2),
-              ),
-              _NavItem(
-                icon: LucideIcons.user,
-                iconActive: LucideIcons.user,
-                label: 'Profile',
-                selected: page == 3,
-                onTap: () => onSelectPage(3),
-              ),
-            ],
+            ),
           ),
         ),
       ),
@@ -154,35 +168,35 @@ class _KikaiButton extends StatelessWidget {
     return Expanded(
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              width: 54,
-              height: 54,
+              width: 52,
+              height: 52,
               decoration: BoxDecoration(
-                color: AppColors.primary,
-                borderRadius: BorderRadius.circular(20),
+                gradient: AppColors.brandGradient,
+                borderRadius: BorderRadius.circular(18),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.primary.withOpacity(0.22),
-                    blurRadius: 24,
-                    offset: const Offset(0, 8),
+                    color: AppColors.accent.withOpacity(0.35),
+                    blurRadius: 18,
+                    offset: const Offset(0, 6),
                   ),
                 ],
               ),
               alignment: Alignment.center,
-              child: const Icon(LucideIcons.plus,
-                  color: AppColors.surface, size: 30),
+              child: Icon(PhosphorIconsBold.plus,
+                  color: AppColors.surface, size: 28),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 3),
             const Text(
               'Kikai',
               style: TextStyle(
                 color: AppColors.textPrimary,
-                fontSize: 13,
+                fontSize: 12,
                 fontWeight: FontWeight.w800,
               ),
             ),
@@ -209,23 +223,23 @@ class _NavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = selected ? AppColors.textPrimary : AppColors.navInactive;
+    final color = selected ? AppColors.accent : AppColors.navInactive;
     return Expanded(
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(20),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(selected ? iconActive : icon, color: color, size: 27),
-            const SizedBox(height: 4),
+            Icon(selected ? iconActive : icon, color: color, size: 26),
+            const SizedBox(height: 3),
             Text(
               label,
               style: TextStyle(
                 color: color,
-                fontSize: 12,
-                fontWeight: selected ? FontWeight.w800 : FontWeight.w500,
+                fontSize: 11.5,
+                fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
               ),
             ),
           ],

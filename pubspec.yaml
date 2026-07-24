@@ -24,6 +24,9 @@ dependencies:
   cached_network_image: ^3.4.1
   lucide_icons: ^0.257.0
 
+  # M46 — Redesign UI/UX: icon set duotone premium (Phosphor)
+  phosphor_flutter: ^2.1.0
+
   # Media & file (attachment support — M4)
   image_picker: ^1.1.2
   file_picker: ^8.1.4
