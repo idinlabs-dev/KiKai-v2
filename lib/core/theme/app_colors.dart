@@ -1,67 +1,56 @@
 import 'package:flutter/material.dart';
 
-/// KiKai — color tokens (pastel violet, light-first).
+/// KiKai — screenshot-accurate warm minimal tokens.
 ///
-/// Rebrand: soft pastel lilac/pink background, aksen violet, kartu
-/// glass-like putih. TIDAK memakai neon/cyberpunk/glow.
+/// Referensi visual: off-white canvas, kartu putih rounded besar, garis
+/// tipis hangat, aksen ink hitam, ikon abu netral, dan danger merah lembut.
 class AppColors {
   AppColors._();
 
-  // ── Brand (violet) ─────────────────────────────────────────────
-  static const Color primary = Color(0xFF8B5CF6);
-  static const Color primaryDeep = Color(0xFF7C3AED);
-  static const Color accent = Color(0xFFEC7FB0);
-  static const Color accentDeep = Color(0xFFDB6AA0);
+  // ── Ink / Brand ─────────────────────────────────────────────────
+  static const Color primary = Color(0xFF101010);
+  static const Color primaryDeep = Color(0xFF050505);
+  static const Color accent = Color(0xFF101010);
+  static const Color accentDeep = Color(0xFF050505);
 
-  // ── Surface (pastel sky) ───────────────────────────────────────
-  static const Color background = Color(0xFFF6F1FB);      // lilac lembut
-  static const Color skyBackground = Color(0xFFEFE7FA);   // lilac lebih pekat
-  static const Color surface = Color(0xFFFFFFFF);
-  static const Color surfaceElevated = Color(0xFFFFFFFF);
-  static const Color surfaceHigh = Color(0xFFEDE4FB);
-  static const Color divider = Color(0xFFE5DBF3);
+  // ── Screenshot surfaces ─────────────────────────────────────────
+  static const Color background = Color(0xFFF7F5F0);
+  static const Color surface = Color(0xFFFFFEFB);
+  static const Color surfaceElevated = Color(0xFFFFFEFB);
+  static const Color surfaceHigh = Color(0xFFEAE7DF);
+  static const Color softChip = Color(0xFFDFDED9);
+  static const Color iconTile = Color(0xFFDDDDDD);
+  static const Color divider = Color(0xFFE3DFD7);
 
   // ── Text ───────────────────────────────────────────────────────
-  static const Color textPrimary = Color(0xFF1F1636);
-  static const Color textSecondary = Color(0xFF6B6383);
-  static const Color textMuted = Color(0xFF9B94B0);
+  static const Color textPrimary = Color(0xFF151515);
+  static const Color textSecondary = Color(0xFF625F58);
+  static const Color textMuted = Color(0xFFA19D94);
 
-  // ── States ────────────────────────────────────────────────────
-  static const Color success = Color(0xFF34C77B);
-  static const Color warning = Color(0xFFE8A93A);
-  static const Color danger = Color(0xFFE05A6F);
+  // ── States ─────────────────────────────────────────────────────
+  static const Color success = Color(0xFF101010);
+  static const Color warning = Color(0xFF2F2F2F);
+  static const Color danger = Color(0xFFA91616);
+  static const Color dangerSurface = Color(0xFFF2E4E0);
+  static const Color dangerTile = Color(0xFFE9C7C2);
 
-  // ── Bubble ─────────────────────────────────────────────────────
-  static const Color bubbleUser = Color(0xFF8B5CF6);
-  static const Color bubbleUserDeep = Color(0xFF7C3AED);
-  static const Color bubbleAssistant = Color(0xFFFFFFFF);
+  // ── Bubble / nav ───────────────────────────────────────────────
+  static const Color bubbleUser = Color(0xFF101010);
+  static const Color bubbleUserDeep = Color(0xFF050505);
+  static const Color bubbleAssistant = Color(0xFFFFFEFB);
+  static const Color online = Color(0xFF101010);
+  static const Color navInactive = Color(0xFFA9A59B);
 
-  // ── Bottom nav ─────────────────────────────────────────────────
-  static const Color online = Color(0xFF34C77B);
-  static const Color navInactive = Color(0xFFB5AEC7);
-
-  // ── Gradients ─────────────────────────────────────────────────
+  // ── Compatible legacy gradients (solid ink) ────────────────────
   static const LinearGradient brandGradient = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [Color(0xFF8B5CF6), Color(0xFFEC7FB0)],
+    colors: [Color(0xFF101010), Color(0xFF050505)],
   );
 
   static const LinearGradient userBubbleGradient = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [Color(0xFF9B6DF7), Color(0xFF7C3AED)],
+    colors: [Color(0xFF101010), Color(0xFF050505)],
   );
 
   static const LinearGradient avatarGradient = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [Color(0xFFB48CFA), Color(0xFFEC7FB0)],
-  );
-
-  static const LinearGradient skyGradient = LinearGradient(
-    begin: Alignment.topCenter,
-    end: Alignment.bottomCenter,
-    colors: [Color(0xFFF6F1FB), Color(0xFFFCEDF3)],
+    colors: [Color(0xFF101010), Color(0xFF050505)],
   );
 }

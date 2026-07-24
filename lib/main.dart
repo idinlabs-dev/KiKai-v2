@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'app.dart';
+import 'core/theme/app_colors.dart';
 import 'services/ads_service.dart';
 import 'services/auth_service.dart';
 import 'services/firebase_service.dart';
@@ -17,7 +18,7 @@ Future<void> main() async {
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.dark,
-      systemNavigationBarColor: Color(0xFFF5F3EE),
+      systemNavigationBarColor: AppColors.background,
       systemNavigationBarIconBrightness: Brightness.dark,
     ),
   );

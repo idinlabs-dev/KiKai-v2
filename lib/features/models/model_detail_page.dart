@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../models/ai_model.dart';
@@ -91,17 +92,17 @@ class ModelDetailPage extends StatelessWidget {
             const _SectionTitle('Spesifikasi'),
             const SizedBox(height: 10),
             _SpecTile(
-              icon: Icons.memory_rounded,
+              icon: LucideIcons.cpu,
               label: 'Max tokens',
               value: '${model.maxTokens}',
             ),
             _SpecTile(
-              icon: Icons.attach_file_rounded,
+              icon: LucideIcons.paperclip,
               label: 'Dukung lampiran file',
               value: model.supportsFile ? 'Ya' : 'Tidak',
             ),
             _SpecTile(
-              icon: Icons.build_circle_outlined,
+              icon: LucideIcons.wrench,
               label: 'Dukung tools',
               value: model.supportsTools ? 'Ya' : 'Tidak',
             ),
@@ -170,11 +171,11 @@ class ModelDetailPage extends StatelessWidget {
 
   static String _ctaText(AiModel m) {
     final id = m.apiModelId ?? m.id;
-    if (m.id == 'kimi') return '⚡ Chat Ngebut Sekarang';
-    if (id.startsWith('glm')) return '✨ Mulai Chat dengan GLM';
-    if (id.startsWith('gpt-oss')) return '🚀 Coba GPT-OSS Sekarang';
-    if (id == 'nvidia-ultra') return '💬 Mulai Chat Sekarang';
-    return '💬 Coba Chat Sekarang';
+    if (m.id == 'kimi') return 'Chat Ngebut Sekarang';
+    if (id.startsWith('glm')) return 'Mulai Chat dengan GLM';
+    if (id.startsWith('gpt-oss')) return 'Coba GPT-OSS Sekarang';
+    if (id == 'nvidia-ultra') return 'Mulai Chat Sekarang';
+    return 'Coba Chat Sekarang';
   }
 }
 

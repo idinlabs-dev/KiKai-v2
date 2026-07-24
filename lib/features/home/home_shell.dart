@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../models/ai_model.dart';
@@ -65,8 +66,6 @@ class _HomeShellState extends State<HomeShell> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBody: true,
-      backgroundColor: AppColors.background,
       body: IndexedStack(
         index: _page,
         children: [
@@ -97,52 +96,43 @@ class _BottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      top: false,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-        child: Container(
-          height: 68,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(28),
-            border: Border.all(color: AppColors.divider, width: 1),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.primary.withOpacity(0.10),
-                blurRadius: 24,
-                offset: const Offset(0, 8),
-              ),
-            ],
-          ),
+    return Container(
+      decoration: const BoxDecoration(
+        color: AppColors.background,
+        border: Border(top: BorderSide(color: AppColors.divider, width: 1)),
+      ),
+      child: SafeArea(
+        top: false,
+        child: SizedBox(
+          height: 78,
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               _NavItem(
-                icon: Icons.chat_bubble_outline_rounded,
-                iconActive: Icons.chat_bubble_rounded,
+                icon: LucideIcons.messageCircle,
+                iconActive: LucideIcons.messageCircle,
                 label: 'Chat',
                 selected: page == 0,
                 onTap: () => onSelectPage(0),
               ),
               _NavItem(
-                icon: Icons.history_rounded,
-                iconActive: Icons.history_rounded,
+                icon: LucideIcons.history,
+                iconActive: LucideIcons.history,
                 label: 'History',
                 selected: page == 1,
                 onTap: () => onSelectPage(1),
               ),
               _KikaiButton(onTap: onKikai),
               _NavItem(
-                icon: Icons.auto_awesome_outlined,
-                iconActive: Icons.auto_awesome_rounded,
+                icon: LucideIcons.sparkles,
+                iconActive: LucideIcons.sparkles,
                 label: 'Models',
                 selected: page == 2,
                 onTap: () => onSelectPage(2),
               ),
               _NavItem(
-                icon: Icons.person_outline_rounded,
-                iconActive: Icons.person_rounded,
+                icon: LucideIcons.user,
+                iconActive: LucideIcons.user,
                 label: 'Profile',
                 selected: page == 3,
                 onTap: () => onSelectPage(3),
@@ -170,22 +160,31 @@ class _KikaiButton extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              width: 50,
-              height: 50,
+              width: 54,
+              height: 54,
               decoration: BoxDecoration(
-                gradient: AppColors.brandGradient,
-                borderRadius: BorderRadius.circular(18),
+                color: AppColors.primary,
+                borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.primary.withOpacity(0.35),
-                    blurRadius: 16,
-                    offset: const Offset(0, 6),
+                    color: AppColors.primary.withOpacity(0.22),
+                    blurRadius: 24,
+                    offset: const Offset(0, 8),
                   ),
                 ],
               ),
               alignment: Alignment.center,
-              child: const Icon(Icons.auto_awesome_rounded,
-                  color: Colors.white, size: 26),
+              child: const Icon(LucideIcons.plus,
+                  color: AppColors.surface, size: 30),
+            ),
+            const SizedBox(height: 4),
+            const Text(
+              'Kikai',
+              style: TextStyle(
+                color: AppColors.textPrimary,
+                fontSize: 13,
+                fontWeight: FontWeight.w800,
+              ),
             ),
           ],
         ),
@@ -219,14 +218,14 @@ class _NavItem extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(selected ? iconActive : icon, color: color, size: 23),
+            Icon(selected ? iconActive : icon, color: color, size: 27),
             const SizedBox(height: 4),
             Text(
               label,
               style: TextStyle(
                 color: color,
-                fontSize: 11,
-                fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                fontSize: 12,
+                fontWeight: selected ? FontWeight.w800 : FontWeight.w500,
               ),
             ),
           ],

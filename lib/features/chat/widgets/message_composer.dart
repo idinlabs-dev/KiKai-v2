@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../../core/theme/app_colors.dart';
 
@@ -192,7 +193,7 @@ class _MessageComposerState extends State<MessageComposer> {
     return SafeArea(
       top: false,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(12, 6, 12, 10),
+        padding: const EdgeInsets.fromLTRB(20, 8, 20, 18),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -228,13 +229,13 @@ class _MessageComposerState extends State<MessageComposer> {
                         const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                     decoration: BoxDecoration(
                       color: AppColors.surface,
-                      borderRadius: BorderRadius.circular(28),
+                      borderRadius: BorderRadius.circular(30),
                       border: Border.all(color: AppColors.divider),
                     ),
                     child: Row(
                       children: [
                         _InlineIcon(
-                            icon: Icons.attach_file_rounded, onTap: _pickAny),
+                            icon: LucideIcons.paperclip, onTap: _pickAny),
                         if (widget.onToggleWebSearch != null)
                           _WebSearchToggle(
                             enabled: widget.webSearchEnabled,
@@ -258,7 +259,7 @@ class _MessageComposerState extends State<MessageComposer> {
                               disabledBorder: InputBorder.none,
                               filled: false,
                               isDense: true,
-                              hintText: 'Ask anything...',
+                                  hintText: 'Ask anything...',
                               hintStyle:
                                   TextStyle(color: AppColors.textMuted),
                               contentPadding: EdgeInsets.symmetric(
@@ -271,7 +272,7 @@ class _MessageComposerState extends State<MessageComposer> {
                     ),
                   ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 12),
                 AnimatedSwitcher(
                   duration: const Duration(milliseconds: 160),
                   transitionBuilder: (child, anim) =>
@@ -279,13 +280,13 @@ class _MessageComposerState extends State<MessageComposer> {
                   child: showStop
                       ? _SendButton(
                           key: const ValueKey('stop'),
-                          icon: Icons.stop_rounded,
+                          icon: LucideIcons.stopCircle,
                           onTap: widget.onStop,
                           enabled: true,
                         )
                       : _SendButton(
                           key: const ValueKey('send'),
-                          icon: Icons.arrow_upward_rounded,
+                          icon: LucideIcons.arrowUp,
                           onTap: _canSend ? _submit : null,
                           enabled: _canSend,
                         ),
@@ -383,11 +384,11 @@ class _Attachment {
   IconData get icon {
     switch (kind) {
       case _AttKind.image:
-        return Icons.image_outlined;
+        return LucideIcons.image;
       case _AttKind.text:
-        return Icons.description_outlined;
+        return LucideIcons.fileText;
       case _AttKind.binary:
-        return Icons.insert_drive_file_outlined;
+        return LucideIcons.file;
     }
   }
 }
@@ -430,7 +431,7 @@ class _AttachmentChip extends StatelessWidget {
           borderRadius: BorderRadius.circular(999),
           child: const Padding(
             padding: EdgeInsets.all(4),
-            child: Icon(Icons.close_rounded,
+            child: Icon(LucideIcons.x,
                 size: 14, color: AppColors.textMuted),
           ),
         ),
@@ -448,7 +449,7 @@ class _InlineIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     return IconButton(
       onPressed: onTap,
-      icon: Icon(icon, color: AppColors.textSecondary, size: 22),
+      icon: Icon(icon, color: AppColors.textSecondary, size: 24),
       splashRadius: 20,
       constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
       padding: EdgeInsets.zero,
@@ -478,14 +479,14 @@ class _SendButton extends StatelessWidget {
           onTap: onTap,
           borderRadius: BorderRadius.circular(999),
           child: Container(
-            width: 46,
-            height: 46,
+            width: 58,
+            height: 58,
             decoration: const BoxDecoration(
               color: AppColors.primary,
               shape: BoxShape.circle,
             ),
             alignment: Alignment.center,
-            child: Icon(icon, color: Colors.white, size: 22),
+            child: Icon(icon, color: AppColors.surface, size: 28),
           ),
         ),
       ),
@@ -507,7 +508,7 @@ class _WebSearchToggle extends StatelessWidget {
       child: IconButton(
         onPressed: onTap,
         icon: Icon(
-          enabled ? Icons.travel_explore_rounded : Icons.public_rounded,
+          enabled ? LucideIcons.search : LucideIcons.globe2,
           color: color,
           size: 22,
         ),
@@ -566,8 +567,8 @@ class _ImageThumbPreview extends StatelessWidget {
                   border: Border.all(color: Colors.white, width: 1.5),
                 ),
                 alignment: Alignment.center,
-                child: const Icon(Icons.close_rounded,
-                    size: 14, color: Colors.white),
+                child: const Icon(LucideIcons.x,
+                    size: 14, color: AppColors.surface),
               ),
             ),
           ),

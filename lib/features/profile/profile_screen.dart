@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../core/constants/app_config.dart';
 import '../../core/theme/app_colors.dart';
@@ -56,7 +57,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         actions: [
           if (widget.controller != null)
             IconButton(
-              icon: const Icon(Icons.settings_outlined),
+              icon: const Icon(LucideIcons.settings),
               tooltip: 'Settings',
               onPressed: () => Navigator.of(context).push(
                 MaterialPageRoute(
@@ -96,17 +97,16 @@ class _ProfileHeader extends StatelessWidget {
     return Row(
       children: [
         Container(
-          width: 64,
-          height: 64,
+          width: 110,
+          height: 110,
           decoration: BoxDecoration(
             gradient: AppColors.brandGradient,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(32),
             boxShadow: [
               BoxShadow(
-                color: AppColors.primary.withOpacity(0.35),
-                blurRadius: 24,
-                spreadRadius: -4,
-                offset: const Offset(0, 8),
+                color: AppColors.primary.withOpacity(0.16),
+                blurRadius: 30,
+                offset: const Offset(0, 14),
               ),
             ],
           ),
@@ -114,13 +114,13 @@ class _ProfileHeader extends StatelessWidget {
           child: const Text(
             'K',
             style: TextStyle(
-              color: Colors.white,
-              fontSize: 30,
+              color: AppColors.surface,
+              fontSize: 54,
               fontWeight: FontWeight.w800,
             ),
           ),
         ),
-        const SizedBox(width: 14),
+        const SizedBox(width: 24),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -130,8 +130,8 @@ class _ProfileHeader extends StatelessWidget {
                     ? AuthService.instance.current!.name
                     : 'Kamu',
                 style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
+                  fontSize: 28,
+                  fontWeight: FontWeight.w800,
                   color: AppColors.textPrimary,
                 ),
               ),
@@ -139,7 +139,7 @@ class _ProfileHeader extends StatelessWidget {
               Text(
                 'Pengguna ${AppConfig.appName}',
                 style: const TextStyle(
-                  fontSize: 12.5,
+                  fontSize: 22,
                   color: AppColors.textMuted,
                 ),
               ),
@@ -167,10 +167,10 @@ class _StreakCard extends StatelessWidget {
         : 'Check-in terakhir: ${DateFormat('d MMM yyyy').format(state.lastCheckInDate!)}';
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 18),
+      padding: const EdgeInsets.fromLTRB(28, 26, 28, 28),
       decoration: BoxDecoration(
         color: AppColors.surfaceElevated,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(28),
         border: Border.all(color: AppColors.divider),
       ),
       child: Column(
@@ -178,23 +178,23 @@ class _StreakCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(Icons.local_fire_department_rounded,
-                  color: AppColors.accent, size: 22),
-              const SizedBox(width: 8),
+              const Icon(LucideIcons.flame,
+                  color: AppColors.accent, size: 26),
+              const SizedBox(width: 14),
               const Text(
                 'Daily Login Streak',
                 style: TextStyle(
                   color: AppColors.textPrimary,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 15,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 25,
                 ),
               ),
               const Spacer(),
               Container(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 9),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.15),
+                  color: AppColors.softChip,
                   borderRadius: BorderRadius.circular(999),
                 ),
                 child: Text(
@@ -202,35 +202,35 @@ class _StreakCard extends StatelessWidget {
                   style: const TextStyle(
                     color: AppColors.primary,
                     fontWeight: FontWeight.w700,
-                    fontSize: 12,
+                    fontSize: 20,
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 24),
           _DaysGrid(count: count),
-          const SizedBox(height: 14),
+          const SizedBox(height: 24),
           ClipRRect(
             borderRadius: BorderRadius.circular(999),
             child: LinearProgressIndicator(
               value: progress,
-              minHeight: 8,
+              minHeight: 12,
               backgroundColor: AppColors.surfaceHigh,
               valueColor:
                   const AlwaysStoppedAnimation<Color>(AppColors.primary),
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 18),
           Text(
             lastLabel,
-            style: const TextStyle(color: AppColors.textMuted, fontSize: 11.5),
+            style: const TextStyle(color: AppColors.textMuted, fontSize: 19),
           ),
           const SizedBox(height: 4),
           const Text(
             'Buka aplikasi setiap hari agar streak tidak putus. '
             'Skip 1 hari → streak reset ke 0.',
-            style: TextStyle(color: AppColors.textSecondary, fontSize: 12.5),
+            style: TextStyle(color: AppColors.textSecondary, fontSize: 22, height: 1.35),
           ),
         ],
       ),
@@ -276,34 +276,34 @@ class _DayCell extends StatelessWidget {
 
     if (isReward) {
       bg = done ? AppColors.accent : AppColors.surfaceHigh;
-      fg = done ? Colors.white : AppColors.textMuted;
-      icon = Icons.card_giftcard_rounded;
+        fg = done ? AppColors.surface : AppColors.textMuted;
+        icon = LucideIcons.gift;
     } else {
       bg = done ? AppColors.primary : AppColors.surfaceHigh;
-      fg = done ? Colors.white : AppColors.textMuted;
-      icon = done ? Icons.check_rounded : Icons.circle_outlined;
+        fg = done ? AppColors.surface : AppColors.textMuted;
+        icon = done ? LucideIcons.check : LucideIcons.circle;
     }
 
     return Column(
       children: [
         Container(
-          height: 40,
+          height: 68,
           decoration: BoxDecoration(
             color: bg,
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(14),
             border: Border.all(
               color: done ? Colors.transparent : AppColors.divider,
             ),
           ),
           alignment: Alignment.center,
-          child: Icon(icon, size: 18, color: fg),
+          child: Icon(icon, size: 25, color: fg),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 10),
         Text(
-          isReward ? '🎁' : 'H$day',
+          isReward ? 'R' : 'H$day',
           style: TextStyle(
-            fontSize: 10,
-            fontWeight: FontWeight.w600,
+            fontSize: 18,
+            fontWeight: FontWeight.w800,
             color: done ? AppColors.textPrimary : AppColors.textMuted,
           ),
         ),
@@ -321,14 +321,14 @@ class _PremiumStatusCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
         gradient: active
             ? AppColors.brandGradient
             : const LinearGradient(
                 colors: [AppColors.surfaceElevated, AppColors.surfaceElevated],
               ),
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(28),
         border: Border.all(
           color: active ? Colors.transparent : AppColors.divider,
         ),
@@ -336,20 +336,21 @@ class _PremiumStatusCard extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            width: 44,
-            height: 44,
+          width: 76,
+          height: 76,
             decoration: BoxDecoration(
               color: active
-                  ? Colors.white.withOpacity(0.18)
+                  ? AppColors.surface.withOpacity(0.18)
                   : AppColors.surfaceHigh,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(18),
             ),
             alignment: Alignment.center,
             child: Icon(
               active
-                  ? Icons.workspace_premium_rounded
-                  : Icons.lock_outline_rounded,
-              color: active ? Colors.white : AppColors.textMuted,
+                  ? LucideIcons.badgeCheck
+                  : LucideIcons.lock,
+              color: active ? AppColors.surface : AppColors.textMuted,
+              size: 32,
             ),
           ),
           const SizedBox(width: 14),
@@ -360,9 +361,9 @@ class _PremiumStatusCard extends StatelessWidget {
                 Text(
                   active ? 'Premium Mode Aktif' : 'Premium Mode Terkunci',
                   style: TextStyle(
-                    color: active ? Colors.white : AppColors.textPrimary,
+                    color: active ? AppColors.surface : AppColors.textPrimary,
                     fontWeight: FontWeight.w700,
-                    fontSize: 14.5,
+                    fontSize: 25,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -372,9 +373,9 @@ class _PremiumStatusCard extends StatelessWidget {
                       : 'Login 7 hari berturut-turut untuk membukanya.',
                   style: TextStyle(
                     color: active
-                        ? Colors.white.withOpacity(0.9)
+                        ? AppColors.surface.withOpacity(0.9)
                         : AppColors.textSecondary,
-                    fontSize: 12.5,
+                    fontSize: 21,
                   ),
                 ),
               ],
@@ -404,7 +405,7 @@ class _AboutCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Icon(Icons.info_outline_rounded,
+          const Icon(LucideIcons.info,
               color: AppColors.textSecondary),
           const SizedBox(width: 12),
           Expanded(
@@ -446,14 +447,14 @@ Future<void> showReachedPremiumDialog(BuildContext context) {
       backgroundColor: AppColors.surfaceElevated,
       title: const Row(
         children: [
-          Text('🎉  Selamat!'),
+              Text('Selamat!'),
         ],
       ),
       content: const Text(
         'Kamu mendapatkan:\n\n'
-        '⭐ Premium Mode\n'
-        '🚫 Bebas iklan\n'
-        '⚡ Pengalaman AI lebih nyaman\n\n'
+        'Premium Mode\n'
+        'Bebas iklan\n'
+        'Pengalaman AI lebih nyaman\n\n'
         'Tetap login setiap hari agar status premium tidak hilang.',
       ),
       actions: [
@@ -472,7 +473,7 @@ Future<void> showStreakBrokenDialog(BuildContext context) {
     context: context,
     builder: (ctx) => AlertDialog(
       backgroundColor: AppColors.surfaceElevated,
-      title: const Text('💀  Streak terputus!'),
+        title: const Text('Streak terputus!'),
       content: const Text(
         'Kamu tidak membuka aplikasi selama 1 hari.\n\n'
         'Status premium telah dicabut. Silakan mulai kembali dari hari '
@@ -499,7 +500,7 @@ class _DonationCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.surfaceElevated,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(28),
         border: Border.all(color: AppColors.divider),
       ),
       child: Column(
@@ -507,7 +508,7 @@ class _DonationCard extends StatelessWidget {
         children: [
           Row(
             children: const [
-              Icon(Icons.volunteer_activism_outlined,
+              Icon(LucideIcons.heartHandshake,
                   color: AppColors.textPrimary, size: 20),
               SizedBox(width: 8),
               Text(
@@ -524,7 +525,7 @@ class _DonationCard extends StatelessWidget {
           const Text(
             'Kalau KiKai ngebantu kamu, boleh banget kirim donasi lewat '
             'QRIS di bawah. Scan pakai app bank / e-wallet apa aja — '
-            'nominal bebas. Makasih banyak, bro 🙏',
+              'nominal bebas. Makasih banyak, bro.',
             style: TextStyle(
               color: AppColors.textSecondary,
               fontSize: 13,

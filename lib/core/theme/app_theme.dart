@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'app_colors.dart';
 
-/// KiKai — ThemeData monokrom light-first.
+/// KiKai — ThemeData warm minimal, ngikutin referensi screenshot.
 ///
 /// Gaya hitam-putih minimalis, tanpa gradient/neon. Font utama
 /// **Plus Jakarta Sans** (geometric, bersih). Sebagian besar widget
@@ -14,7 +14,7 @@ class AppTheme {
 
   static ThemeData _build() {
     final base = ThemeData.light(useMaterial3: true);
-    final textTheme = GoogleFonts.plusJakartaSansTextTheme(base.textTheme)
+    final textTheme = GoogleFonts.interTextTheme(base.textTheme)
         .apply(
       bodyColor: AppColors.textPrimary,
       displayColor: AppColors.textPrimary,
@@ -23,9 +23,9 @@ class AppTheme {
     return base.copyWith(
       colorScheme: const ColorScheme.light(
         primary: AppColors.primary,
-        onPrimary: Colors.white,
+        onPrimary: AppColors.surface,
         secondary: AppColors.primary,
-        onSecondary: Colors.white,
+        onSecondary: AppColors.surface,
         surface: AppColors.surface,
         onSurface: AppColors.textPrimary,
         error: AppColors.danger,
@@ -40,17 +40,17 @@ class AppTheme {
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: true,
-        titleTextStyle: GoogleFonts.plusJakartaSans(
+        titleTextStyle: GoogleFonts.inter(
           color: AppColors.textPrimary,
-          fontSize: 18,
-          fontWeight: FontWeight.w700,
+          fontSize: 20,
+          fontWeight: FontWeight.w800,
         ),
       ),
       cardTheme: CardTheme(
         color: AppColors.surface,
         elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(28),
           side: const BorderSide(color: AppColors.divider, width: 1),
         ),
       ),
@@ -59,15 +59,15 @@ class AppTheme {
         fillColor: AppColors.surface,
         hintStyle: const TextStyle(color: AppColors.textMuted),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(22),
           borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(22),
           borderSide: const BorderSide(color: AppColors.divider),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(22),
           borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
         ),
         contentPadding:
@@ -76,13 +76,13 @@ class AppTheme {
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
-          foregroundColor: Colors.white,
+          foregroundColor: AppColors.surface,
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(18),
           ),
-          textStyle: GoogleFonts.plusJakartaSans(
+          textStyle: GoogleFonts.inter(
             fontWeight: FontWeight.w700,
             fontSize: 14.5,
           ),
@@ -91,9 +91,9 @@ class AppTheme {
       iconTheme: const IconThemeData(color: AppColors.textPrimary),
       snackBarTheme: SnackBarThemeData(
         backgroundColor: AppColors.primary,
-        contentTextStyle: GoogleFonts.plusJakartaSans(color: Colors.white),
+        contentTextStyle: GoogleFonts.inter(color: AppColors.surface),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(18),
         ),
         behavior: SnackBarBehavior.floating,
       ),
@@ -101,7 +101,7 @@ class AppTheme {
         backgroundColor: AppColors.surface,
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(28),
         ),
       ),
       drawerTheme: const DrawerThemeData(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../models/chat_message.dart';
@@ -207,13 +208,13 @@ class _ChatHeader extends StatelessWidget {
     final skillActive = skillOption.id != SkillsService.kSkillNone;
 
     return Container(
-      height: 56,
-      padding: const EdgeInsets.symmetric(horizontal: 6),
+      height: 70,
+      padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Row(
         children: [
           IconButton(
             onPressed: onNotifications,
-            icon: const Icon(Icons.notifications_none_rounded,
+            icon: const Icon(LucideIcons.bell,
                 color: AppColors.textPrimary),
             tooltip: 'Notifikasi',
           ),
@@ -236,8 +237,8 @@ class _ChatHeader extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 4),
-                        const Icon(Icons.keyboard_arrow_down_rounded,
-                            size: 20, color: AppColors.textSecondary),
+                        const Icon(LucideIcons.chevronDown,
+                            size: 18, color: AppColors.textSecondary),
                       ],
                     ),
                   ),
@@ -276,7 +277,7 @@ class _ChatHeader extends StatelessWidget {
           ),
           IconButton(
             onPressed: onNewChat,
-            icon: const Icon(Icons.edit_square, color: AppColors.textPrimary),
+            icon: const Icon(LucideIcons.edit3, color: AppColors.textPrimary),
             tooltip: 'Percakapan baru',
           ),
         ],
@@ -301,7 +302,7 @@ class _HeaderPill extends StatelessWidget {
   Widget build(BuildContext context) {
     final content = Material(
       color: highlighted ? AppColors.primary : AppColors.surface,
-      borderRadius: BorderRadius.circular(999),
+          borderRadius: BorderRadius.circular(999),
       child: InkWell(
         borderRadius: BorderRadius.circular(999),
         onTap: onTap,
@@ -377,26 +378,29 @@ class _EmptyState extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 40, 20, 20),
       children: [
-        const SizedBox(height: 20),
+            const SizedBox(height: 18),
         const Center(child: KAvatar(size: 64)),
-        const SizedBox(height: 20),
+            const SizedBox(height: 22),
         const Text(
           'Halo, aku Kikai',
           textAlign: TextAlign.center,
           style: TextStyle(
             color: AppColors.textPrimary,
-            fontSize: 24,
+              fontSize: 30,
             fontWeight: FontWeight.w800,
-            letterSpacing: -0.5,
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 18),
         const Text(
           'Tanya apa saja — coding, nulis, riset, atau sekadar ngobrol.',
           textAlign: TextAlign.center,
-          style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
+          style: TextStyle(
+            color: AppColors.textSecondary,
+            fontSize: 18,
+            height: 1.35,
+          ),
         ),
-        const SizedBox(height: 28),
+        const SizedBox(height: 48),
         for (final p in prompts) ...[
           _PromptCard(text: p, onTap: () => onPromptTap(p)),
           const SizedBox(height: 10),
@@ -415,14 +419,14 @@ class _PromptCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       color: AppColors.surface,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(24),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
         onTap: onTap,
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(24),
             border: Border.all(color: AppColors.divider),
           ),
           child: Row(
@@ -432,14 +436,14 @@ class _PromptCard extends StatelessWidget {
                   text,
                   style: const TextStyle(
                     color: AppColors.textPrimary,
-                    fontSize: 14,
-                    height: 1.4,
+                    fontSize: 20,
+                    height: 1.35,
                   ),
                 ),
               ),
-              const SizedBox(width: 10),
-              const Icon(Icons.arrow_outward_rounded,
-                  size: 18, color: AppColors.textMuted),
+              const SizedBox(width: 16),
+              const Icon(LucideIcons.arrowUpRight,
+                  size: 22, color: AppColors.textMuted),
             ],
           ),
         ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../app.dart' show kThemeMode;
 import '../../core/constants/app_config.dart';
@@ -169,8 +170,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: AppColors.textPrimary,
-                            fontSize: 20,
-                            fontWeight: FontWeight.w700,
+                            fontSize: 32,
+                            fontWeight: FontWeight.w800,
                           ),
                         ),
                       ),
@@ -199,14 +200,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ),
                         _RowDivider(),
                         _NavRow(
-                          icon: Icons.language_rounded,
+                          icon: LucideIcons.languages,
                           label: 'Language',
                           trailingText: _language,
                           onTap: _pickLanguage,
                         ),
                         _RowDivider(),
                         _NavRow(
-                          icon: Icons.bolt_rounded,
+                          icon: LucideIcons.zap,
                           label: 'AI Model',
                           trailingText:
                               widget.controller.model.label,
@@ -218,7 +219,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       const SizedBox(height: 8),
                       _CardGroup(children: [
                         _NavRow(
-                          icon: Icons.rocket_launch_rounded,
+                          icon: LucideIcons.rocket,
                           label: 'Mission Center',
                           trailingText: 'Reward',
                           onTap: () {
@@ -232,7 +233,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         if (_isAdmin) _RowDivider(),
                         if (_isAdmin)
                           _NavRow(
-                            icon: Icons.admin_panel_settings_rounded,
+                            icon: LucideIcons.shieldCheck,
                             label: 'Admin Dashboard',
                             trailingText: 'Review',
                             onTap: () {
@@ -247,14 +248,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ]),
                       const SizedBox(height: 16),
                       _DangerRow(
-                        icon: Icons.delete_outline_rounded,
+                        icon: LucideIcons.trash2,
                         label: 'Clear Chat History',
                         onTap: _clearHistory,
                       ),
                       const SizedBox(height: 10),
                       // M18.1 — Sign out
                       _DangerRow(
-                        icon: Icons.logout_rounded,
+                        icon: LucideIcons.logOut,
                         label: 'Sign out',
                         onTap: _signOut,
                       ),
@@ -263,7 +264,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       const SizedBox(height: 8),
                       _CardGroup(children: [
                         _NavRow(
-                          icon: Icons.info_outline_rounded,
+                          icon: LucideIcons.info,
                           label: 'About ${AppConfig.appName}',
                           trailingText: 'v${AppConfig.appVersion}',
                           onTap: () {
@@ -276,7 +277,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ),
                         _RowDivider(),
                         _NavRow(
-                          icon: Icons.shield_outlined,
+                          icon: LucideIcons.shield,
                           label: 'Privacy Policy',
                           onTap: () => Navigator.of(context).push(
                             MaterialPageRoute(
@@ -286,9 +287,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ),
                         _RowDivider(),
                         _NavRow(
-                          icon: Icons.star_outline_rounded,
+                          icon: LucideIcons.star,
                           label: 'Rate on Play Store',
-                          trailing: const Icon(Icons.open_in_new_rounded,
+                          trailing: const Icon(LucideIcons.externalLink,
                               size: 16, color: AppColors.textMuted),
                           onTap: () => _snackSoon(context),
                         ),
@@ -362,25 +363,25 @@ class _ProfileCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       color: AppColors.surfaceElevated,
-      borderRadius: BorderRadius.circular(18),
+      borderRadius: BorderRadius.circular(28),
       child: InkWell(
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(28),
         onTap: () {
           Navigator.of(context).push(
             MaterialPageRoute(builder: (_) => const ProfileScreen()),
           );
         },
         child: Container(
-          padding: const EdgeInsets.all(14),
+          padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(28),
             border: Border.all(color: AppColors.divider),
           ),
           child: Row(
             children: [
               Container(
-                width: 54,
-                height: 54,
+                width: 84,
+                height: 84,
                 decoration: const BoxDecoration(
                   gradient: AppColors.avatarGradient,
                   shape: BoxShape.circle,
@@ -405,8 +406,8 @@ class _ProfileCard extends StatelessWidget {
                       'Guest User',
                       style: TextStyle(
                         color: AppColors.textPrimary,
-                        fontSize: 17,
-                        fontWeight: FontWeight.w700,
+                        fontSize: 28,
+                        fontWeight: FontWeight.w800,
                       ),
                     ),
                     const SizedBox(height: 6),
@@ -414,22 +415,22 @@ class _ProfileCard extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withOpacity(0.18),
-                        borderRadius: BorderRadius.circular(8),
+                  color: AppColors.softChip,
+                  borderRadius: BorderRadius.circular(999),
                       ),
                       child: const Text(
                         'Guest',
                         style: TextStyle(
                           color: AppColors.primary,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w700,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
                         ),
                       ),
                     ),
                   ],
                 ),
               ),
-              const Icon(Icons.chevron_right_rounded,
+              const Icon(LucideIcons.chevronRight,
                   color: AppColors.textMuted),
             ],
           ),
@@ -451,9 +452,9 @@ class _SectionLabel extends StatelessWidget {
         text,
         style: const TextStyle(
           color: AppColors.primary,
-          fontSize: 11.5,
-          fontWeight: FontWeight.w700,
-          letterSpacing: 1.2,
+          fontSize: 22,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 1.8,
         ),
       ),
     );
@@ -469,7 +470,7 @@ class _CardGroup extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.surfaceElevated,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(28),
         border: Border.all(color: AppColors.divider),
       ),
       child: Column(children: children),
@@ -508,20 +509,20 @@ class _NavRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(14),
+      borderRadius: BorderRadius.circular(24),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 22),
         child: Row(
           children: [
             Container(
-              width: 32,
-              height: 32,
+              width: 54,
+              height: 54,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.15),
-                borderRadius: BorderRadius.circular(10),
+                color: AppColors.iconTile,
+                borderRadius: BorderRadius.circular(14),
               ),
-              child: Icon(icon, size: 18, color: AppColors.primary),
+              child: Icon(icon, size: 26, color: AppColors.textPrimary),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -529,8 +530,8 @@ class _NavRow extends StatelessWidget {
                 label,
                 style: const TextStyle(
                   color: AppColors.textPrimary,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
+                  fontSize: 26,
+                  fontWeight: FontWeight.w800,
                 ),
               ),
             ),
@@ -541,12 +542,12 @@ class _NavRow extends StatelessWidget {
                   trailingText!,
                   style: const TextStyle(
                     color: AppColors.textMuted,
-                    fontSize: 13,
+                    fontSize: 20,
                   ),
                 ),
               ),
             trailing ??
-                const Icon(Icons.chevron_right_rounded,
+                const Icon(LucideIcons.chevronRight,
                     color: AppColors.textMuted),
           ],
         ),
@@ -569,28 +570,28 @@ class _DangerRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       color: AppColors.danger.withOpacity(0.08),
-      borderRadius: BorderRadius.circular(18),
+      borderRadius: BorderRadius.circular(28),
       child: InkWell(
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(28),
         onTap: onTap,
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(28),
             border: Border.all(color: AppColors.danger.withOpacity(0.4)),
           ),
           child: Row(
             children: [
               Container(
-                width: 32,
-                height: 32,
+                width: 54,
+                height: 54,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: AppColors.danger.withOpacity(0.18),
-                  borderRadius: BorderRadius.circular(10),
+                  color: AppColors.dangerTile,
+                  borderRadius: BorderRadius.circular(14),
                 ),
                 child: Icon(icon,
-                    size: 18, color: AppColors.danger),
+                    size: 26, color: AppColors.danger),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -598,12 +599,12 @@ class _DangerRow extends StatelessWidget {
                   label,
                   style: const TextStyle(
                     color: AppColors.danger,
-                    fontSize: 15,
+                    fontSize: 25,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
-              const Icon(Icons.chevron_right_rounded,
+              const Icon(LucideIcons.chevronRight,
                   color: AppColors.danger),
             ],
           ),
@@ -622,19 +623,19 @@ class _ThemeRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = value == ThemeMode.dark;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 22),
       child: Row(
         children: [
           Container(
-            width: 32,
-            height: 32,
+            width: 54,
+            height: 54,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(10),
+              color: AppColors.iconTile,
+              borderRadius: BorderRadius.circular(14),
             ),
-            child: const Icon(Icons.palette_outlined,
-                size: 18, color: AppColors.primary),
+            child: const Icon(LucideIcons.palette,
+                size: 26, color: AppColors.textPrimary),
           ),
           const SizedBox(width: 12),
           const Expanded(
@@ -642,13 +643,13 @@ class _ThemeRow extends StatelessWidget {
               'Theme',
               style: TextStyle(
                 color: AppColors.textPrimary,
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
+                fontSize: 26,
+                fontWeight: FontWeight.w800,
               ),
             ),
           ),
           Container(
-            padding: const EdgeInsets.all(3),
+            padding: const EdgeInsets.all(5),
             decoration: BoxDecoration(
               color: AppColors.surfaceHigh,
               borderRadius: BorderRadius.circular(999),
@@ -690,7 +691,7 @@ class _SegBtn extends StatelessWidget {
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
         decoration: BoxDecoration(
           gradient: active ? AppColors.avatarGradient : null,
           borderRadius: BorderRadius.circular(999),
@@ -698,9 +699,9 @@ class _SegBtn extends StatelessWidget {
         child: Text(
           label,
           style: TextStyle(
-            color: active ? Colors.white : AppColors.textSecondary,
-            fontSize: 12.5,
-            fontWeight: FontWeight.w700,
+            color: active ? AppColors.surface : AppColors.textSecondary,
+            fontSize: 20,
+            fontWeight: FontWeight.w800,
           ),
         ),
       ),
