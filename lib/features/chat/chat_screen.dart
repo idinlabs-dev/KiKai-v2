@@ -176,6 +176,11 @@ class _ChatScreenState extends State<ChatScreen> {
                   onStop: _controller.stopGenerating,
                   webSearchEnabled: _controller.webSearchEnabled,
                   onToggleWebSearch: _controller.toggleWebSearch,
+                  activeSkillId: SkillsService.instance.activeSkill,
+                  onPickSkill: (id) async {
+                    await SkillsService.instance.setActive(id);
+                    if (mounted) setState(() {});
+                  },
                 ),
               ],
             );

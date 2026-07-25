@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../services/skills_service.dart';
 
 /// KiKai — Composer (monokrom).
 ///
@@ -29,6 +30,11 @@ class MessageComposer extends StatefulWidget {
   /// Banner status (mis. "KiKai lagi googling..."). Null = disembunyikan.
   final String? statusMessage;
 
+  /// M46 — Skill terpilih + callback untuk diubah dari popup "+".
+  /// Kalau `onPickSkill` null, item skill tidak ditampilkan di popup.
+  final String? activeSkillId;
+  final ValueChanged<String>? onPickSkill;
+
   const MessageComposer({
     super.key,
     required this.isSending,
@@ -37,6 +43,8 @@ class MessageComposer extends StatefulWidget {
     this.webSearchEnabled = false,
     this.onToggleWebSearch,
     this.statusMessage,
+    this.activeSkillId,
+    this.onPickSkill,
   });
 
   @override
@@ -91,6 +99,78 @@ class _MessageComposerState extends State<MessageComposer> {
 
   Future<void> _pickAny() async {
     await _pick(FileType.any);
+  }
+
+  Future<void> _pickImage() async {
+    await _pick(FileType.image, imageMode: true);
+  }
+
+  /// M46 — Popup "+" ala ChatGPT: floating card di atas tombol, berisi
+  /// aksi Foto/File + toggle Pencarian web + daftar skill aktif.
+  Future<void> _openPlusMenu() async {
+    if (widget.isSending) return;
+    FocusScope.of(context).unfocus();
+    await showGeneralDialog<void>(
+      context: context,
+      barrierColor: Colors.black.withOpacity(0.18),
+      barrierDismissible: true,
+      barrierLabel: 'plus-menu',
+      transitionDuration: const Duration(milliseconds: 160),
+      pageBuilder: (ctx, _, __) {
+        final bottomInset = MediaQuery.of(ctx).viewInsets.bottom;
+        return SafeArea(
+          child: Padding(
+            padding: EdgeInsets.only(
+              left: 16,
+              right: 16,
+              bottom: bottomInset + 96,
+            ),
+            child: Align(
+              alignment: Alignment.bottomLeft,
+              child: _PlusMenu(
+                onFoto: () {
+                  Navigator.of(ctx).pop();
+                  _pickImage();
+                },
+                onFile: () {
+                  Navigator.of(ctx).pop();
+                  _pickAny();
+                },
+                webEnabled: widget.webSearchEnabled,
+                onToggleWeb: widget.onToggleWebSearch == null
+                    ? null
+                    : () {
+                        Navigator.of(ctx).pop();
+                        widget.onToggleWebSearch!.call();
+                      },
+                skills: widget.onPickSkill == null
+                    ? const <SkillOption>[]
+                    : SkillsService.catalog,
+                activeSkillId: widget.activeSkillId,
+                onSkill: (id) {
+                  Navigator.of(ctx).pop();
+                  widget.onPickSkill?.call(id);
+                },
+              ),
+            ),
+          ),
+        );
+      },
+      transitionBuilder: (ctx, anim, __, child) {
+        final curve = CurvedAnimation(parent: anim, curve: Curves.easeOutCubic);
+        return FadeTransition(
+          opacity: curve,
+          child: Align(
+            alignment: Alignment.bottomLeft,
+            child: ScaleTransition(
+              alignment: Alignment.bottomLeft,
+              scale: Tween<double>(begin: 0.94, end: 1).animate(curve),
+              child: child,
+            ),
+          ),
+        );
+      },
+    );
   }
 
 
@@ -234,13 +314,13 @@ class _MessageComposerState extends State<MessageComposer> {
                     ),
                     child: Row(
                       children: [
-                        _InlineIcon(
-                            icon: LucideIcons.paperclip, onTap: _pickAny),
-                        if (widget.onToggleWebSearch != null)
-                          _WebSearchToggle(
-                            enabled: widget.webSearchEnabled,
-                            onTap: widget.onToggleWebSearch!,
-                          ),
+                        _PlusButton(
+                          onTap: _openPlusMenu,
+                          highlight: widget.webSearchEnabled ||
+                              (widget.activeSkillId != null &&
+                                  widget.activeSkillId !=
+                                      SkillsService.kSkillNone),
+                        ),
                         Expanded(
                           child: TextField(
                             controller: _ctrl,
@@ -573,6 +653,261 @@ class _ImageThumbPreview extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// ── Plus button + ChatGPT-style popup menu ──────────────────────────────
+
+class _PlusButton extends StatelessWidget {
+  final VoidCallback onTap;
+  final bool highlight;
+  const _PlusButton({required this.onTap, this.highlight = false});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 4),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(999),
+          child: Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: highlight
+                  ? AppColors.primary.withOpacity(0.08)
+                  : Colors.transparent,
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: highlight
+                    ? AppColors.primary.withOpacity(0.35)
+                    : AppColors.divider,
+              ),
+            ),
+            alignment: Alignment.center,
+            child: Icon(
+              LucideIcons.plus,
+              size: 22,
+              color: highlight ? AppColors.primary : AppColors.textSecondary,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _PlusMenu extends StatelessWidget {
+  final VoidCallback onFoto;
+  final VoidCallback onFile;
+  final bool webEnabled;
+  final VoidCallback? onToggleWeb;
+  final List<SkillOption> skills;
+  final String? activeSkillId;
+  final ValueChanged<String> onSkill;
+
+  const _PlusMenu({
+    required this.onFoto,
+    required this.onFile,
+    required this.webEnabled,
+    required this.onToggleWeb,
+    required this.skills,
+    required this.activeSkillId,
+    required this.onSkill,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 300),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(color: AppColors.divider),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.10),
+              blurRadius: 24,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(22),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(vertical: 6),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _PlusItem(
+                  icon: LucideIcons.image,
+                  label: 'Foto',
+                  onTap: onFoto,
+                ),
+                _PlusItem(
+                  icon: LucideIcons.paperclip,
+                  label: 'File',
+                  onTap: onFile,
+                ),
+                if (onToggleWeb != null)
+                  _PlusItem(
+                    icon: LucideIcons.globe2,
+                    label: 'Pencarian web',
+                    trailing: _MiniSwitch(active: webEnabled),
+                    onTap: onToggleWeb!,
+                  ),
+                if (skills.isNotEmpty) ...[
+                  const _MenuDivider(),
+                  for (final s in skills)
+                    _PlusItem(
+                      icon: s.icon,
+                      label: s.label,
+                      subtitle: s.subtitle,
+                      selected: s.id == activeSkillId,
+                      onTap: () => onSkill(s.id),
+                    ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _PlusItem extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String? subtitle;
+  final bool selected;
+  final Widget? trailing;
+  final VoidCallback onTap;
+  const _PlusItem({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    this.subtitle,
+    this.selected = false,
+    this.trailing,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        child: Row(
+          children: [
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: selected
+                    ? AppColors.primary.withOpacity(0.12)
+                    : AppColors.iconTile,
+                shape: BoxShape.circle,
+              ),
+              alignment: Alignment.center,
+              child: Icon(
+                icon,
+                size: 18,
+                color:
+                    selected ? AppColors.primary : AppColors.textPrimary,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: AppColors.textPrimary,
+                      fontSize: 14.5,
+                      fontWeight:
+                          selected ? FontWeight.w700 : FontWeight.w600,
+                    ),
+                  ),
+                  if (subtitle != null && subtitle!.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 2),
+                      child: Text(
+                        subtitle!,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: AppColors.textMuted,
+                          fontSize: 11.5,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            if (trailing != null) ...[
+              const SizedBox(width: 8),
+              trailing!,
+            ] else if (selected) ...[
+              const SizedBox(width: 8),
+              const Icon(Icons.check_rounded,
+                  size: 18, color: AppColors.primary),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _MenuDivider extends StatelessWidget {
+  const _MenuDivider();
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        child: Container(height: 1, color: AppColors.divider),
+      );
+}
+
+class _MiniSwitch extends StatelessWidget {
+  final bool active;
+  const _MiniSwitch({required this.active});
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 160),
+      width: 32,
+      height: 18,
+      decoration: BoxDecoration(
+        color: active ? AppColors.primary : AppColors.iconTile,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: AnimatedAlign(
+        duration: const Duration(milliseconds: 160),
+        alignment: active ? Alignment.centerRight : Alignment.centerLeft,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 2),
+          child: Container(
+            width: 14,
+            height: 14,
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+            ),
+          ),
+        ),
       ),
     );
   }

@@ -94,16 +94,16 @@ class _ModelSelectorSheetState extends State<_ModelSelectorSheet> {
             ),
             const Padding(
               padding: EdgeInsets.only(left: 4, bottom: 4),
-              child: Text('Pilih mode',
+              child: Text('Pilih model',
                   style: TextStyle(
                       color: AppColors.textPrimary,
-                      fontSize: 16,
+                      fontSize: 18,
                       fontWeight: FontWeight.w700)),
             ),
             const Padding(
               padding: EdgeInsets.only(left: 4, bottom: 12),
               child: Text(
-                'Ganti gaya jawab KiKai — pilih mode sesuai kebutuhan kamu.',
+                'Pilih model AI yang cocok buat kebutuhan kamu.',
                 style: TextStyle(color: AppColors.textMuted, fontSize: 12),
               ),
             ),
@@ -117,17 +117,11 @@ class _ModelSelectorSheetState extends State<_ModelSelectorSheet> {
                 constraints: BoxConstraints(
                   maxHeight: MediaQuery.of(context).size.height * 0.62,
                 ),
-                child: GridView.builder(
+                child: ListView.separated(
                   shrinkWrap: true,
                   padding: EdgeInsets.zero,
-                  gridDelegate:
-                      const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    mainAxisSpacing: 10,
-                    crossAxisSpacing: 10,
-                    childAspectRatio: 0.98,
-                  ),
                   itemCount: kAiModels.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 2),
                   itemBuilder: (_, i) {
                     final m = kAiModels[i];
                     final unlocked =
@@ -172,68 +166,68 @@ class _ModelTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // M46 — Gemini-style row: checkmark kiri kalau aktif, judul besar,
+    // subtitle muted, chip "Baru" / lock di kanan. Bersih, tanpa card.
     return Material(
-      color: selected ? AppColors.surfaceHigh : AppColors.surfaceElevated,
-      borderRadius: BorderRadius.circular(16),
+      color: Colors.transparent,
       child: InkWell(
-        borderRadius: BorderRadius.circular(16),
         onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: selected ? AppColors.primary : AppColors.divider,
-              width: selected ? 1.4 : 1,
-            ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+        borderRadius: BorderRadius.circular(14),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Row(
-                children: [
-                  _ModelIcon(model: model, locked: locked),
-                  const Spacer(),
-                  if (locked)
-                    _Badge(
-                      icon: Icons.lock_rounded,
-                      text: model.lockedReason.isEmpty
-                          ? 'LOCK'
-                          : model.lockedReason.toUpperCase(),
-                      color: AppColors.warning,
-                    )
-                  else if (selected)
-                    const _Badge(text: 'Aktif', color: AppColors.primary),
-                ],
+              SizedBox(
+                width: 28,
+                child: selected
+                    ? const Icon(Icons.check_rounded,
+                        size: 22, color: AppColors.primary)
+                    : const SizedBox.shrink(),
               ),
-              const SizedBox(height: 10),
-              Text(
-                model.label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: locked
-                      ? AppColors.textMuted
-                      : AppColors.textPrimary,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
+              const SizedBox(width: 4),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      model.label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: locked
+                            ? AppColors.textMuted
+                            : AppColors.textPrimary,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    if (model.description.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 2),
+                        child: Text(
+                          model.description,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: AppColors.textMuted,
+                            fontSize: 12.5,
+                            height: 1.3,
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 4),
-              if (model.description.isNotEmpty)
-                Expanded(
-                  child: Text(
-                    model.description,
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: locked
-                          ? AppColors.textMuted
-                          : AppColors.textSecondary,
-                      fontSize: 11.5,
-                      height: 1.35,
-                    ),
-                  ),
+              const SizedBox(width: 8),
+              if (locked)
+                _Badge(
+                  icon: Icons.lock_rounded,
+                  text: model.lockedReason.isEmpty
+                      ? 'LOCK'
+                      : model.lockedReason.toUpperCase(),
+                  color: AppColors.warning,
                 ),
             ],
           ),
