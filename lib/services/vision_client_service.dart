@@ -36,7 +36,6 @@ class VisionClientService {
     required List<VisionImage> images,
     List<ChatMessage> history = const [],
     bool useSearch = false,
-    String? systemPrompt,
     void Function(bool cleanFinish)? onFinish,
   }) async* {
     final uri = Uri.parse('${AppConfig.webBackendBase}/vision');
@@ -52,8 +51,6 @@ class VisionClientService {
       'prompt': prompt,
       'images': images.map((i) => i.toJson()).toList(),
       'useSearch': useSearch,
-      if (systemPrompt != null && systemPrompt.trim().isNotEmpty)
-        'systemPrompt': systemPrompt,
       'history': windowed
           .map((m) => {
                 'role': m.role == ChatRole.user ? 'user' : 'assistant',

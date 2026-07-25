@@ -233,22 +233,8 @@ class ChatController extends ChangeNotifier {
     // native). Tidak perlu lagi scrape via jina; VisionClientService akan
     // handle langsung (lihat routing runOnce di bawah). Flag ini dipakai
     // supaya runOnce tau harus lewat vision endpoint dgn useSearch=true.
-    //
-    // M46 — mode Riset (DeepResearch / Riset Cepat) OTOMATIS ikut trigger
-    // vision-route + googleSearch. User tidak perlu lagi toggle web search
-    // manual saat sudah memilih mode riset. Backend vision juga akan
-    // menerima `systemPrompt` khusus riset supaya model MELAKUKAN riset
-    // (bukan ngasih tutorial cara meriset).
-    final String _activeSkill = SkillsService.instance.activeSkill;
-    final bool isDeepResearchMode =
-        _activeSkill == SkillsService.kSkillAiqResearch;
-    final bool isFastResearchMode =
-        _activeSkill == SkillsService.kSkillNemoRetriever;
-    final bool isResearchMode = isDeepResearchMode || isFastResearchMode;
-
-    final bool searchTriggered = !hasImages &&
-        urls.isEmpty &&
-        (hasSearchPrefix || _webSearchEnabled || isResearchMode);
+    final bool searchTriggered =
+        !hasImages && (hasSearchPrefix || (_webSearchEnabled && urls.isEmpty));
 
     if (false) {
     } else if (!hasImages && urls.isNotEmpty) {
@@ -327,15 +313,6 @@ class ChatController extends ChangeNotifier {
 
     // M45 — flag route: image atau search-triggered → kie.ai vision endpoint.
     final bool useVisionRoute = hasImages || searchTriggered;
-
-    // M46 — bangun system prompt "mindset periset". Cuma dikirim ke vision
-    // route saat mode riset aktif — supaya model googleSearch dulu, baru
-    // menulis laporan (bukan tutorial cara meriset).
-    final String? researchSystemPrompt = isResearchMode
-        ? _buildResearchSystemPrompt(deep: isDeepResearchMode)
-        : null;
-
-
     Future<void> runOnce({required List<ChatMessage> historyOverride}) async {
       cleanFinish = false;
       final completer = Completer<void>();
@@ -346,14 +323,11 @@ class ChatController extends ChangeNotifier {
       // 2 kasus: (a) user upload gambar, (b) user trigger search (prefix
       // /search atau toggle web search aktif tanpa URL). Selain itu tetap
       // pakai AiClientService biasa.
-      // M46 — mode riset (DeepResearch/Riset Cepat) juga selalu masuk ke
-      // vision route dgn useSearch=true + systemPrompt periset.
       final Stream<String> src = useVisionRoute
           ? VisionClientService.instance.streamMessage(
               prompt: _stripImageSentinels(trimmed),
               images: visionImages,
               useSearch: true,
-              systemPrompt: researchSystemPrompt,
               history: historyOverride
                   .where((m) => m.id != assistantMsg.id)
                   .map((m) => m.copyWith(
@@ -712,61 +686,6 @@ JSON:''';
     if (firstLine.length <= 40) return firstLine;
     return '${firstLine.substring(0, 40).trimRight()}…';
   }
-
-  /// M46 — System prompt "mindset periset" untuk vision route saat mode
-  /// riset aktif. Bikin model benar-benar googleSearch dulu & menyusun
-  /// laporan berbasis sumber — BUKAN tutorial cara meriset.
-  String _buildResearchSystemPrompt({required bool deep}) {
-    if (deep) {
-      return '''
-Kamu adalah KiKai dalam mode DeepResearch. Kamu DILARANG menjawab dengan tutorial "cara melakukan riset". Tugasmu adalah BENAR-BENAR MELAKUKAN RISET dan mengembalikan HASIL riset.
-
-Alur berpikir wajib (rasional & manusiawi):
-1. Baca topik/permintaan user. Identifikasi entitas kunci, rentang waktu (mis. "hari ini", "2026"), dan sudut analisis.
-2. Nilai pengetahuan internal kamu. Kalau topik belum pasti ada di pengetahuanmu, atau butuh data segar (berita, tren, angka, jadwal, harga, event, rilisan, statistik) — kamu WAJIB memanggil tool `googleSearch` sekarang juga. Jangan menebak. Instingmu harus berkata: "topik ini nggak sepenuhnya ada di dataset gw, gw harus cari sumber di internet dulu".
-3. Selancar beberapa jenis sumber: portal berita (detik, kompas, cnn, cnbc, tempo, techcrunch, theverge, dsb), blog / WordPress / Medium, YouTube (judul + deskripsi + transkrip kalau tersedia), forum (reddit, kaskus), dokumentasi resmi & press release. Jangan cuma satu sumber.
-4. Kumpulkan fakta konkret: angka, tanggal spesifik, nama orang/produk/kanal, kutipan singkat, URL sumber.
-5. Sintesis jadi LAPORAN RISET yang terstruktur.
-
-Format output wajib (Bahasa Indonesia santai profesional, ikut bahasa user kalau berbeda):
-# {Judul laporan berdasarkan topik user}
-
-## Ringkasan Eksekutif
-2–4 kalimat inti temuan.
-
-## Temuan Utama
-Bullet padat dgn data konkret (angka, tanggal, nama). Setiap poin ditutup rujukan singkat, mis. "(Detik, 25 Jul 2026)".
-
-## Analisis & Insight
-Interpretasi dari temuan, pola, sudut yang menarik.
-
-## Rekomendasi / Langkah Praktis
-Actionable — apa yang user bisa lakukan dengan hasil riset ini.
-
-## Sumber
-Daftar url yang benar-benar kamu buka lewat googleSearch. Format: - Judul — URL.
-
-Larangan keras:
-- JANGAN menjelaskan "gunakan Google Trends", "buka YouTube Studio", "pakai vidIQ/Ahrefs", "strategi ATM", dan sejenisnya. Itu tutorial, BUKAN riset.
-- JANGAN menjawab tanpa memanggil googleSearch kalau topiknya butuh data terkini.
-- JANGAN mengarang sumber. Kalau setelah searching data masih tipis, katakan jujur bagian mana yg belum bisa dipastikan.
-''';
-    }
-    return '''
-Kamu adalah KiKai dalam mode Riset Cepat. Tugasmu: mengembalikan HASIL riset ringkas berbasis sumber — BUKAN tutorial cara meriset.
-
-Alur wajib:
-1. Kalau topik butuh data segar / spesifik / belum pasti di pengetahuanmu → panggil tool `googleSearch` dulu (blog, portal berita, YouTube, forum, dokumen resmi).
-2. Ambil 3–5 sumber, kumpulkan fakta konkret (angka, nama, tanggal).
-3. Jawab RINGKAS (biasanya < 250 kata) dengan format:
-   - Ringkasan 2–3 kalimat.
-   - Poin-poin fakta (bullet).
-   - Sumber (judul + url).
-
-Larangan: jangan ngasih panduan "cara meriset", jangan mengarang sumber, jangan menjawab tanpa googleSearch untuk topik yang butuh data terkini.
-''';
-  }
-
 
   @override
   void dispose() {
