@@ -10,8 +10,8 @@ import '../../services/history_service.dart';
 import '../../services/social_auth_service.dart';
 import '../chat/chat_controller.dart';
 import '../chat/widgets/model_selector.dart';
+import '../profile/profile_screen.dart';
 import '../mission/mission_page.dart';
-import '../mission/vip_donation_page.dart';
 import '../admin/admin_dashboard.dart';
 import '../about/about_page.dart';
 import '../about/privacy_policy_page.dart';
@@ -186,6 +186,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      const _ProfileCard(),
+                      const SizedBox(height: 22),
                       const _SectionLabel('PREFERENCES'),
                       const SizedBox(height: 8),
                       _CardGroup(children: [
@@ -224,19 +226,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             Navigator.of(context).push(
                               MaterialPageRoute(
                                 builder: (_) => const MissionPage(),
-                              ),
-                            );
-                          },
-                        ),
-                        _RowDivider(),
-                        _NavRow(
-                          icon: LucideIcons.crown,
-                          label: 'Donasi V.I.P',
-                          trailingText: 'No Ads',
-                          onTap: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (_) => const VipDonationPage(),
                               ),
                             );
                           },
@@ -367,6 +356,89 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
 // ── Building blocks ─────────────────────────────────────────────────────
 
+class _ProfileCard extends StatelessWidget {
+  const _ProfileCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: AppColors.surfaceElevated,
+      borderRadius: BorderRadius.circular(20),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(20),
+        onTap: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const ProfileScreen()),
+          );
+        },
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: AppColors.divider),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 52,
+                height: 52,
+                decoration: const BoxDecoration(
+                  gradient: AppColors.avatarGradient,
+                  shape: BoxShape.circle,
+                ),
+                padding: const EdgeInsets.all(2),
+                child: ClipOval(
+                  child: Image.asset(
+                    'assets/mascot/claude_ai_mascot.png',
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => Container(
+                      color: AppColors.surfaceHigh,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Guest User',
+                      style: TextStyle(
+                        color: AppColors.textPrimary,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                  color: AppColors.softChip,
+                  borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: const Text(
+                        'Guest',
+                        style: TextStyle(
+                          color: AppColors.primary,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(LucideIcons.chevronRight, size: 18,
+                  color: AppColors.textMuted),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
 
 class _SectionLabel extends StatelessWidget {
   final String text;

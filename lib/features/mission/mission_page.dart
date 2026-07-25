@@ -2,17 +2,19 @@ import 'package:flutter/material.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../models/creator_submission.dart';
+import '../../models/streak_state.dart';
 import '../../models/user_entitlements.dart';
 import '../../services/auth_service.dart';
 import '../../services/creator_mission_service.dart';
-import 'vip_donation_page.dart';
+import '../../services/ads_service.dart';
+import '../../services/notifications_service.dart';
+import '../../services/streak_service.dart';
 
 /// M19.1 — Mission Center: user submit link TikTok, lihat status & histori.
 ///
-/// **Revisi (v0.15.x)**: daily check-in dihapus. Tier reward disederhanakan
-/// jadi 1 target: **500 views → No Ads 30 hari**. Jalur alternatif: Donasi
-/// V.I.P (Rp 20rb = 1 bulan, Rp 50rb = lifetime terbatas) via halaman
-/// [VipDonationPage].
+/// **M21**: ditambah **Daily Check-In card** (klik manual, placeholder
+/// rewarded video ad) + tombol shortcut submit misi. Setelah check-in
+/// sukses, notifikasi lokal ("Streak +1 hari") juga di-push ke Inbox.
 class MissionPage extends StatefulWidget {
   final bool embedded;
   const MissionPage({super.key, this.embedded = false});
@@ -58,12 +60,6 @@ class _MissionPageState extends State<MissionPage> {
     }
   }
 
-  void _openVip() {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const VipDonationPage()),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -80,10 +76,12 @@ class _MissionPageState extends State<MissionPage> {
           children: [
             const _HeroBanner(),
             const SizedBox(height: 16),
+            const _DailyCheckInCard(),
+            const SizedBox(height: 16),
             if (!_entLoading) _EntitlementsCard(ent: _ent),
             const SizedBox(height: 16),
             const _RewardTiers(),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
@@ -100,8 +98,6 @@ class _MissionPageState extends State<MissionPage> {
                 onPressed: _openSubmit,
               ),
             ),
-            const SizedBox(height: 20),
-            _VipShortcut(onTap: _openVip),
             const SizedBox(height: 22),
             const Text(
               'Riwayat Pengajuan',
@@ -165,8 +161,8 @@ class _HeroBanner extends StatelessWidget {
           ]),
           SizedBox(height: 8),
           Text(
-            'Buat konten TikTok tentang KiKai, tag @kikai. Minimal 500 views '
-            'kamu langsung dapet No Ads gratis 30 hari.',
+            'Buat konten TikTok tentang KiKai, tag @kikai, '
+            'lalu klaim reward premium sesuai jumlah views.',
             style: TextStyle(color: Colors.white, fontSize: 13, height: 1.4),
           ),
         ],
@@ -229,6 +225,8 @@ class _EntitlementsCard extends StatelessWidget {
           const SizedBox(height: 10),
           Wrap(children: [
             chip('No Ads', ent.noAds),
+            chip('Priority Response', ent.proActive),
+            chip('KiKai Ultra', ent.nvidiaUnlock),
           ]),
         ],
       ),
@@ -240,103 +238,57 @@ class _RewardTiers extends StatelessWidget {
   const _RewardTiers();
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceElevated,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.divider),
-      ),
-      child: Row(children: [
+    Widget tier(String views, String reward, IconData icon, Color color) =>
         Container(
-          width: 40,
-          height: 40,
+          margin: const EdgeInsets.only(bottom: 8),
+          padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: AppColors.success.withOpacity(0.16),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: const Icon(Icons.block_rounded, color: AppColors.success),
-        ),
-        const SizedBox(width: 12),
-        const Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Min. 500 Views',
-                  style: TextStyle(
-                    color: AppColors.textSecondary,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                  )),
-              SizedBox(height: 2),
-              Text('Free No Ads · 30 Hari',
-                  style: TextStyle(
-                    color: AppColors.textPrimary,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                  )),
-            ],
-          ),
-        ),
-      ]),
-    );
-  }
-}
-
-class _VipShortcut extends StatelessWidget {
-  final VoidCallback onTap;
-  const _VipShortcut({required this.onTap});
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: AppColors.surfaceElevated,
-      borderRadius: BorderRadius.circular(14),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(14),
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: AppColors.primary.withOpacity(0.4)),
+            color: AppColors.surfaceElevated,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: AppColors.divider),
           ),
           child: Row(children: [
             Container(
-              width: 44,
-              height: 44,
+              width: 40,
+              height: 40,
               decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.14),
-                borderRadius: BorderRadius.circular(12),
+                color: color.withOpacity(0.16),
+                borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(Icons.workspace_premium_rounded,
-                  color: AppColors.primary),
+              child: Icon(icon, color: color),
             ),
             const SizedBox(width: 12),
-            const Expanded(
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Jalur V.I.P (Donasi)',
-                      style: TextStyle(
+                  Text(views,
+                      style: const TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      )),
+                  const SizedBox(height: 2),
+                  Text(reward,
+                      style: const TextStyle(
                         color: AppColors.textPrimary,
                         fontSize: 14,
-                        fontWeight: FontWeight.w800,
-                      )),
-                  SizedBox(height: 2),
-                  Text('Rp 20rb → No Ads 1 bln · Rp 50rb → No Ads lifetime',
-                      style: TextStyle(
-                        color: AppColors.textMuted,
-                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
                       )),
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right_rounded,
-                color: AppColors.textMuted),
           ]),
-        ),
-      ),
-    );
+        );
+
+    return Column(children: [
+      tier('300 Views', 'No Ads Permanen',
+          Icons.block_rounded, AppColors.success),
+      tier('1,000 Views', 'Priority Response 30 Hari',
+          Icons.workspace_premium_rounded, AppColors.warning),
+      tier('5,000 Views', 'KiKai Ultra Unlock',
+          Icons.bolt_rounded, AppColors.primary),
+    ]);
   }
 }
 
@@ -624,4 +576,189 @@ class _SubmitSheetState extends State<_SubmitSheet> {
           borderSide: BorderSide.none,
         ),
       );
+}
+
+/// M21 — Daily Check-In card. Klik tombol → (placeholder) rewarded video
+/// ad → StreakService.checkIn → push notifikasi lokal ke Inbox.
+class _DailyCheckInCard extends StatefulWidget {
+  const _DailyCheckInCard();
+  @override
+  State<_DailyCheckInCard> createState() => _DailyCheckInCardState();
+}
+
+class _DailyCheckInCardState extends State<_DailyCheckInCard> {
+  bool _loading = false;
+
+  Future<void> _handleCheckIn() async {
+    if (_loading) return;
+    if (StreakService.instance.hasCheckedInToday) return;
+    setState(() => _loading = true);
+    try {
+      // M24 — Real AdMob rewarded ad untuk daily check-in.
+      final ok = await AdsService.instance.showRewardedCheckin();
+      if (!ok) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Iklan belum selesai. Coba lagi.')),
+          );
+        }
+        return;
+      }
+      final result = await StreakService.instance.checkIn();
+      final count = StreakService.instance.state.count;
+
+      String title = 'Check-in berhasil';
+      String body = 'Streak kamu sekarang $count hari. Balik lagi besok!';
+      switch (result) {
+        case StreakCheckInResult.reachedPremium:
+          title = '🎉 KiKai Balanced ter-unlock';
+          body = '7 hari berturut! Model Balanced kebuka permanen '
+              'selama streak dijaga.';
+          break;
+        case StreakCheckInResult.premiumMaintained:
+          title = 'Streak Premium terjaga';
+          body = 'Streak $count hari — model Balanced tetap aktif.';
+          break;
+        case StreakCheckInResult.broken:
+          title = 'Streak reset ke 1';
+          body = 'Sempat skip sehari — streak mulai dari awal lagi. '
+              'Semangat!';
+          break;
+        case StreakCheckInResult.firstDay:
+          title = 'Selamat datang di Daily Streak';
+          body = 'Check-in tiap hari untuk unlock model Balanced di hari ke-7.';
+          break;
+        case StreakCheckInResult.incremented:
+        case StreakCheckInResult.alreadyToday:
+          break;
+      }
+
+      await NotificationsService.instance.pushLocal(
+        id: StreakService.instance.todayNotifId(),
+        type: 'streak',
+        title: title,
+        body: body,
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(title)),
+        );
+        setState(() {}); // refresh tombol → "sudah check-in".
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Check-in gagal: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final done = StreakService.instance.hasCheckedInToday;
+    final streak = StreakService.instance.state.count;
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceElevated,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.divider),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(children: [
+            Container(
+              width: 40, height: 40,
+              decoration: BoxDecoration(
+                color: AppColors.warning.withOpacity(0.18),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(Icons.local_fire_department_rounded,
+                  color: AppColors.warning),
+            ),
+            const SizedBox(width: 12),
+            const Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Daily Check-In',
+                      style: TextStyle(
+                        color: AppColors.textPrimary,
+                        fontWeight: FontWeight.w800,
+                        fontSize: 15,
+                      )),
+                  SizedBox(height: 2),
+                  Text(
+                    'Klik tiap hari, tonton iklan singkat, streak jalan.',
+                    style: TextStyle(
+                        color: AppColors.textMuted, fontSize: 12),
+                  ),
+                ],
+              ),
+            ),
+          ]),
+          const SizedBox(height: 12),
+          Row(children: [
+            for (int i = 1; i <= StreakState.maxDays; i++)
+              Expanded(
+                child: Container(
+                  margin: EdgeInsets.only(
+                      right: i == StreakState.maxDays ? 0 : 4),
+                  height: 6,
+                  decoration: BoxDecoration(
+                    color: i <= streak
+                        ? AppColors.primary
+                        : AppColors.surfaceHigh,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                ),
+              ),
+          ]),
+          const SizedBox(height: 6),
+          Text('$streak / ${StreakState.maxDays} hari',
+              style: const TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: 11.5,
+                fontWeight: FontWeight.w600,
+              )),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              icon: Icon(done
+                  ? Icons.check_circle_rounded
+                  : Icons.play_circle_fill_rounded),
+              label: Text(done
+                  ? 'Sudah Check-In Hari Ini'
+                  : (_loading
+                      ? 'Memuat iklan…'
+                      : 'Check-In Hari Ini (Tonton Iklan)')),
+              style: ElevatedButton.styleFrom(
+                backgroundColor:
+                    done ? AppColors.surfaceHigh : AppColors.primary,
+                foregroundColor:
+                    done ? AppColors.textMuted : Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              onPressed: (done || _loading) ? null : _handleCheckIn,
+            ),
+          ),
+          const SizedBox(height: 6),
+          const Text(
+            'Catatan: reward video akan aktif otomatis setelah AdMob '
+            'terhubung. Sementara pakai placeholder singkat.',
+            style: TextStyle(color: AppColors.textMuted, fontSize: 11),
+          ),
+        ],
+      ),
+    );
+  }
 }
