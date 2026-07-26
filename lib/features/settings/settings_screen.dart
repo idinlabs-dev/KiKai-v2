@@ -186,6 +186,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      const SizedBox(height: 8),
                       const _SectionLabel('PREFERENCES'),
                       const SizedBox(height: 8),
                       _CardGroup(children: [
@@ -230,7 +231,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ),
                         _RowDivider(),
                         _NavRow(
-                          icon: LucideIcons.crown,
+                          icon: LucideIcons.award,
                           label: 'Donasi V.I.P',
                           trailingText: 'No Ads',
                           onTap: () {
@@ -240,7 +241,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               ),
                             );
                           },
-                        ),
                         if (_isAdmin) _RowDivider(),
                         if (_isAdmin)
                           _NavRow(

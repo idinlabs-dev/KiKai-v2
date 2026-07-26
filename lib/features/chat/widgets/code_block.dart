@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_highlight/flutter_highlight.dart';
@@ -15,22 +14,21 @@ class CodeBlock extends StatelessWidget {
 
   const CodeBlock({super.key, required this.code, this.language});
 
-  // Map bahasa → ekstensi file yg wajar buat unduhan.
-  String _extFor(String lang) {
-    switch (lang) {
+  String _extForLang(String lang) {
+    switch (lang.toLowerCase()) {
       case 'html':
       case 'xml':
         return 'html';
+      case 'css':
+        return 'css';
       case 'js':
       case 'javascript':
         return 'js';
       case 'ts':
       case 'typescript':
         return 'ts';
-      case 'jsx':
-        return 'jsx';
-      case 'tsx':
-        return 'tsx';
+      case 'json':
+        return 'json';
       case 'py':
       case 'python':
         return 'py';
@@ -38,11 +36,19 @@ class CodeBlock extends StatelessWidget {
         return 'dart';
       case 'java':
         return 'java';
-      case 'kotlin':
       case 'kt':
+      case 'kotlin':
         return 'kt';
       case 'swift':
         return 'swift';
+      case 'c':
+        return 'c';
+      case 'cpp':
+      case 'c++':
+        return 'cpp';
+      case 'cs':
+      case 'csharp':
+        return 'cs';
       case 'go':
         return 'go';
       case 'rs':
@@ -53,32 +59,18 @@ class CodeBlock extends StatelessWidget {
       case 'rb':
       case 'ruby':
         return 'rb';
-      case 'c':
-        return 'c';
-      case 'cpp':
-      case 'c++':
-        return 'cpp';
-      case 'cs':
-      case 'csharp':
-        return 'cs';
-      case 'css':
-        return 'css';
-      case 'scss':
-        return 'scss';
-      case 'json':
-        return 'json';
-      case 'yaml':
-      case 'yml':
-        return 'yaml';
-      case 'md':
-      case 'markdown':
-        return 'md';
       case 'sh':
       case 'bash':
       case 'shell':
         return 'sh';
       case 'sql':
         return 'sql';
+      case 'yml':
+      case 'yaml':
+        return 'yaml';
+      case 'md':
+      case 'markdown':
+        return 'md';
       default:
         return 'txt';
     }
@@ -86,37 +78,42 @@ class CodeBlock extends StatelessWidget {
 
   Future<void> _downloadCode(BuildContext context) async {
     try {
-      final lang = (language ?? 'text').toLowerCase();
-      final ext = _extFor(lang);
+      final ext = _extForLang(language ?? 'text');
       final ts = DateTime.now().millisecondsSinceEpoch;
-      final filename = 'kikai_snippet_$ts.$ext';
+      final fileName = 'kikai_snippet_$ts.$ext';
 
-      // Coba folder Download publik di Android dulu, fallback ke external
-      // storage app-scoped, terakhir ke temp dir.
       Directory? dir;
       if (Platform.isAndroid) {
-        const publicDownload = '/storage/emulated/0/Download';
-        final d = Directory(publicDownload);
-        if (await d.exists()) dir = d;
+        dir = Directory('/storage/emulated/0/Download');
+        if (!await dir.exists()) {
+          dir = await getExternalStorageDirectory();
+        }
+      } else {
+        dir = await getApplicationDocumentsDirectory();
       }
-      dir ??= await getExternalStorageDirectory();
-      dir ??= await getTemporaryDirectory();
+      dir ??= await getApplicationDocumentsDirectory();
 
-      final file = File('${dir.path}/$filename');
+      final path = '${dir.path}/$fileName';
+      final file = File(path);
       await file.writeAsString(code);
 
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Tersimpan: ${file.path}'),
-          duration: const Duration(seconds: 3),
-        ),
-      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Tersimpan: $path'),
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
     } catch (e) {
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Gagal menyimpan: $e')),
-      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Gagal simpan: $e'),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
     }
   }
 
