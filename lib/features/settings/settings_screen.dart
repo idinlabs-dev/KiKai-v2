@@ -241,6 +241,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               ),
                             );
                           },
+                        ),
                         if (_isAdmin) _RowDivider(),
                         if (_isAdmin)
                           _NavRow(

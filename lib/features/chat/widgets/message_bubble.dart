@@ -288,6 +288,11 @@ class _AssistantRow extends StatelessWidget {
                       onTap: onFollowUpTap!,
                     ),
                   ],
+                  if (!isStreamingEmpty && !message.isStreaming &&
+                      message.content.trim().isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    _CopyMessageButton(text: message.content),
+                  ],
                   if (!isStreamingEmpty) ...[
                     const SizedBox(height: 6),
                     Text(
@@ -348,6 +353,45 @@ class _AssistantRow extends StatelessWidget {
       tableHead: const TextStyle(
           color: baseColor, fontWeight: FontWeight.w700, fontSize: 13.5),
       tableBody: const TextStyle(color: baseColor, fontSize: 13.5),
+    );
+  }
+}
+
+/// M47 — Tombol salin di bawah tiap balasan asisten.
+class _CopyMessageButton extends StatelessWidget {
+  final String text;
+  const _CopyMessageButton({required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(8),
+          onTap: () => _copy(context, text),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: const [
+                Icon(Icons.copy_rounded,
+                    size: 15, color: AppColors.textSecondary),
+                SizedBox(width: 6),
+                Text(
+                  'Salin',
+                  style: TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
