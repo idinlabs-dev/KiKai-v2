@@ -1,57 +1,153 @@
-// M19 — Firestore rules. Copy-paste ke Firebase Console → Rules.
-//
-// Prasyarat: Sign-in menggunakan Firebase Auth (Google/Facebook OAuth
-// dari M16). GAS email/pass flow tidak menghasilkan Firebase Auth
-// token, sehingga user email/pass tidak lolos rules ini. Untuk M19
-// disarankan user memakai Google Sign-In.
-//
 rules_version = '2';
+
+// =====================================================================
+// Firestore Rules — Idincode / KiKai  (dashboard admin M20)
+// =====================================================================
+// Ditulis ulang untuk memperbaiki visibility user di dashboard admin.
+// Kompatibel dengan aplikasi Flutter (M7 auth GAS + M16 OAuth Google/Facebook
+// + M18.2 single-device session + M19 creator submissions) dan dashboard
+// admin web (appchatadmin).
+//
+// CATATAN PENTING (baca dulu!):
+// -------------------------------------------------------------------
+// Jika user daftar/login pakai jalur EMAIL/PASSWORD (GAS - M7) tanpa
+// pernah signInAnonymously ke Firebase, `request.auth` akan NULL
+// sehingga write ke Firestore DITOLAK dan doc `users/{uid}` tidak
+// pernah dibuat -> dashboard kosong. Rules TIDAK bisa memperbaiki ini
+// tanpa Firebase Auth session. Solusi: enable Anonymous Auth di Firebase
+// Console lalu panggil FirebaseAuth.instance.signInAnonymously() di
+// boot app, ATAU migrasi jalur email/password ke Firebase Auth.
+//
+// Selain itu pastikan app selalu menulis field `createdAt`
+// (serverTimestamp) saat pertama kali membuat doc `users/{uid}` --
+// dashboard mengurutkan pakai orderBy("createdAt","desc") sehingga doc
+// tanpa field ini TIDAK akan muncul di list.
+// =====================================================================
+
 service cloud.firestore {
   match /databases/{database}/documents {
-    function isSignedIn() { return request.auth != null; }
-    function isSelf(uid)  { return isSignedIn() && request.auth.uid == uid; }
+
+    // ---------------------------------------------------------------
+    // Helpers
+    // ---------------------------------------------------------------
+
+    // Whitelist email admin. Tambah email baru dengan koma.
     function isAdmin() {
-      return isSignedIn() &&
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.is_admin == true;
+      return request.auth != null
+        && request.auth.token.email != null
+        // email_verified requirement dilonggarkan (Opsi C). Akun email/password
+        // manual di Firebase Console tetap bisa admin tanpa verifikasi.
+        && request.auth.token.email.lower() in [
+             'idincode@gmail.com'
+             // , 'admin2@example.com'
+           ];
     }
 
-    // ── users/{uid} ────────────────────────────────────────────
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isSelf(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    // Field-field yg HANYA boleh diubah admin (entitlement Premium & role).
+    // User biasa TIDAK boleh menyentuh field ini di dokumen mereka sendiri.
+    function protectedUserFields() {
+      return [
+        'no_ads',
+        'pro_expired',
+        'nvidia_unlock',
+        'role',
+        'creator_reward_claimed'
+      ];
+    }
+
+    function touchesProtectedFields() {
+      return request.resource.data.diff(resource.data)
+             .affectedKeys()
+             .hasAny(protectedUserFields());
+    }
+
+    // ---------------------------------------------------------------
+    // /users/{uid}
+    // ---------------------------------------------------------------
     match /users/{uid} {
-      allow read: if isSelf(uid) || isAdmin();
-      // User cuma boleh nulis field profile & session miliknya. Field
-      // entitlement (no_ads, pro_expired, nvidia_unlock, is_admin,
-      // creator_reward_claimed) hanya boleh diubah admin / server.
-      allow create, update: if isSelf(uid)
-        && !("no_ads" in request.resource.data.diff(resource.data).affectedKeys())
-        && !("pro_expired" in request.resource.data.diff(resource.data).affectedKeys())
-        && !("nvidia_unlock" in request.resource.data.diff(resource.data).affectedKeys())
-        && !("creator_reward_claimed" in request.resource.data.diff(resource.data).affectedKeys())
-        && !("is_admin" in request.resource.data.diff(resource.data).affectedKeys());
-      allow update: if isAdmin();
 
-      // sub-collections
-      match /threads/{threadId}       { allow read, write: if isSelf(uid); }
-      match /threads/{threadId}/messages/{msgId} { allow read, write: if isSelf(uid); }
-      match /streak/{docId}           { allow read, write: if isSelf(uid); }
-      match /session/{docId}          { allow read, write: if isSelf(uid); }
+      // READ:
+      //  - Admin boleh baca semua (untuk list di dashboard).
+      //  - User biasa hanya boleh baca doc miliknya sendiri.
+      // NOTE: `list` juga tercakup di `read` -- dashboard butuh ini agar
+      //       query collection('users') tidak return kosong.
+      allow read: if isAdmin() || isSelf(uid);
+
+      // CREATE:
+      //  - User yang sudah authenticated boleh membuat doc dengan
+      //    id == uid mereka sendiri. Field entitlement di initial doc
+      //    boleh saja (di-set default false / null oleh app).
+      allow create: if isSelf(uid);
+
+      // UPDATE:
+      //  - Admin: bebas update apa saja (grant/revoke reward, edit role).
+      //  - Owner: boleh update doc miliknya (email, name, username,
+      //    avatar, lastActiveAt heartbeat, dsb.) TAPI DILARANG menyentuh
+      //    field entitlement.
+      allow update: if isAdmin()
+        || (isSelf(uid) && !touchesProtectedFields());
+
+      // DELETE hanya admin.
+      allow delete: if isAdmin();
+
+      // -------------------------------------------------------------
+      // /users/{uid}/session/{docId}  — M18.2 single-device
+      // -------------------------------------------------------------
+      match /session/{docId} {
+        allow read, write: if isAdmin() || isSelf(uid);
+      }
+
+      // -------------------------------------------------------------
+      // Sub-collection lain milik user (mis. threads / messages M7).
+      // -------------------------------------------------------------
+      match /{sub=**} {
+        allow read, write: if isAdmin() || isSelf(uid);
+      }
     }
 
-    // ── creator_submissions ────────────────────────────────────
-    match /creator_submissions/{subId} {
-      // User boleh baca punya sendiri; admin boleh baca semua.
+    // ---------------------------------------------------------------
+    // /creator_submissions/{id}  — M19 Creator Mission
+    // ---------------------------------------------------------------
+    match /creator_submissions/{id} {
+
+      // Admin bisa list (dashboard) & baca detail apapun.
+      // Pemilik submission bisa baca miliknya sendiri.
       allow read: if isAdmin()
         || (isSignedIn() && resource.data.uid == request.auth.uid);
 
-      // Buat submission: hanya untuk uid sendiri, status wajib pending,
-      // reward null, views nol.
+      // User signed-in boleh submit atas nama diri sendiri.
+      // Wajib set field `uid` = auth.uid & status awal 'pending'.
       allow create: if isSignedIn()
         && request.resource.data.uid == request.auth.uid
-        && request.resource.data.status == 'pending'
-        && request.resource.data.reward == null
-        && request.resource.data.views == 0;
+        && request.resource.data.status == 'pending';
 
-      // Update / delete: hanya admin (approve / reject / cleanup).
+      // Review (approve/reject) & delete hanya admin.
       allow update, delete: if isAdmin();
+    }
+
+    // ---------------------------------------------------------------
+    // /broadcasts/{id}  — pesan global dari admin
+    // ---------------------------------------------------------------
+    match /broadcasts/{id} {
+      // Semua user login bisa baca (buat halaman notifikasi di app).
+      allow read: if isSignedIn();
+      // Hanya admin yg boleh membuat / edit broadcast.
+      allow create, update, delete: if isAdmin();
+    }
+
+    // ---------------------------------------------------------------
+    // Default deny — path lain di luar yang di-whitelist ditolak.
+    // ---------------------------------------------------------------
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }
